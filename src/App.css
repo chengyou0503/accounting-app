@@ -1,38 +1,244 @@
+/* --- 全域 & 基礎設定 --- */
+:root {
+  --primary-color: #ff8c42; /* 溫暖的橘色 */
+  --secondary-color: #4f4f4f; /* 深灰色文字 */
+  --bg-color: #f9f7f3;      /* 米白色背景 */
+  --card-bg-color: #ffffff;
+  --border-color: #e0e0e0;
+  --danger-color: #e74c3c;
+  --success-color: #2ecc71;
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
+  color: var(--secondary-color);
+}
+
+/* --- 主要 Layout --- */
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.app-header {
+  background-color: var(--primary-color);
+  padding: 20px;
   color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.App-link {
-  color: #61dafb;
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* RWD: 電腦版變為雙欄式 */
+@media (min-width: 768px) {
+  .container {
+    grid-template-columns: 380px 1fr;
+    text-align: left;
   }
-  to {
-    transform: rotate(360deg);
-  }
+}
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* --- 卡片通用樣式 --- */
+.card {
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-color);
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+}
+
+/* --- 統計面板 --- */
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    padding: 10px 0;
+}
+.summary-item .amount {
+    font-weight: bold;
+}
+.summary-balance {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #e8f5e9; /* 淡綠色背景 */
+    color: #2e7d32; /* 深綠色文字 */
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+
+/* --- 表單樣式 --- */
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-sizing: border-box; 
+  font-size: 1rem;
+}
+
+.radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.radio-label {
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+.radio-label.checked {
+    border-color: var(--primary-color);
+    background-color: #fff8f2;
+    font-weight: bold;
+}
+.radio-label input[type="radio"] {
+    display: none; /* 隱藏原生 radio button */
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #e67e3a;
+}
+
+
+/* --- 帳目列表樣式 --- */
+.record-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 15px;
+  text-align: left;
+  transition: box-shadow 0.2s;
+}
+.record-card:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.record-details {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 5px 15px;
+  width: 100%;
+  align-items: center;
+}
+
+.record-date {
+  font-size: 0.9rem;
+  color: #888;
+  grid-column: 1 / 2;
+}
+.record-item {
+  font-size: 1.1rem;
+  font-weight: 600;
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+.record-paidBy {
+  font-size: 0.9rem;
+  background-color: #eee;
+  padding: 2px 6px;
+  border-radius: 4px;
+  grid-column: 1 / 2;
+  justify-self: start;
+}
+.record-amount {
+  font-size: 1rem;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 1.5rem; /* 加大叉叉 */
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 50%;
+  transition: color 0.2s, background-color 0.2s;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  color: var(--danger-color);
+  background-color: #fbecec;
+}
+
+.error-message {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* --- 讀取中 Spinner --- */
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
