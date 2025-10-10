@@ -149,11 +149,11 @@ function App() {
             <div className="summary-container card">
                 <h2>收支總覽</h2>
                 <div className="summary-item">
-                    <span>均的總支出</span>
+                    <span>均的回收款</span>
                     <span className="amount">NT$ {Math.round(junTotal)}</span>
                 </div>
                 <div className="summary-item">
-                    <span>宥的總支出</span>
+                    <span>宥的回收款</span>
                     <span className="amount">NT$ {Math.round(youTotal)}</span>
                 </div>
                 <div className="summary-balance">
