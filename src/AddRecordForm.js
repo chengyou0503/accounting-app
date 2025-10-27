@@ -18,7 +18,7 @@ function AddRecordForm({ API_URL, onSuccess }) {
   const handleSubmit = async (values) => {
     const newRecord = {
       ...values,
-      date: values.date.format('YYYY-MM-DD'),
+      date: values.date.format('YYYY-MM-DD'), // Explicitly format the date
       totalAmount: parseFloat(values.totalAmount),
       splitAmount: Math.round(parseFloat(values.totalAmount) / 2),
     };
