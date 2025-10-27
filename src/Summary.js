@@ -1,4 +1,4 @@
-"""import React from 'react';
+import React from 'react';
 
 function Summary({ junTotal, youTotal, handleDeleteAll }) {
   return (
@@ -25,4 +25,3 @@ function Summary({ junTotal, youTotal, handleDeleteAll }) {
 }
 
 export default Summary;
-""
