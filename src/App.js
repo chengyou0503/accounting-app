@@ -5,6 +5,7 @@ import './App.css';
 import Summary from './Summary';
 import AddRecordForm from './AddRecordForm';
 import RecordsList from './RecordsList';
+import EditRecordModal from './EditRecordModal';
 
 const { Header, Content } = Layout;
 
@@ -26,8 +27,8 @@ function App() {
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Editing state can be managed here if needed in the future
-  // const [editingId, setEditingId] = useState(null); 
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   // --- Data Fetching ---
   const fetchRecords = useCallback(async () => {
@@ -94,6 +95,40 @@ function App() {
     }
   };
 
+  // --- Edit Handlers ---
+  const handleEdit = (record) => {
+    setEditingRecord(record);
+    setIsEditModalVisible(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditModalVisible(false);
+    setEditingRecord(null);
+  };
+
+  const handleUpdateRecord = async (updatedRecord) => {
+    const originalRecords = [...records];
+    setRecords(records.map(r => r.id === updatedRecord.id ? updatedRecord : r));
+    setIsEditModalVisible(false);
+    setEditingRecord(null);
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'update', data: updatedRecord })
+        });
+        const result = await response.json();
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Failed to update record.');
+        }
+    } catch (err) {
+        alert(`更新失敗: ${err.message}`);
+        setRecords(originalRecords);
+    }
+  };
+
   // --- 計算總額 ---
   const [junTotal, youTotal] = useMemo(() => {
     return records.reduce((acc, record) => {
@@ -130,11 +165,20 @@ function App() {
                   isLoading={isLoading}
                   error={error}
                   handleDelete={handleDelete}
+                  onEdit={handleEdit}
                 />
               </Col>
             </Row>
           </div>
         </Content>
+        {editingRecord && (
+          <EditRecordModal
+            visible={isEditModalVisible}
+            onCancel={handleCancelEdit}
+            onUpdate={handleUpdateRecord}
+            record={editingRecord}
+          />
+        )}
       </Layout>
     </ConfigProvider>
   );

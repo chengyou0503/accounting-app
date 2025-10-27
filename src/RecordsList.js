@@ -1,7 +1,8 @@
 import React from 'react';
-import { Table, Button, Space, Spin, Alert, Popconfirm, Tag } from 'antd';
+import { List, Card, Button, Space, Spin, Alert, Popconfirm, Tag, Dropdown, Menu } from 'antd';
+import { MoreOutlined } from '@ant-design/icons';
 
-function RecordsList({ records, isLoading, error, handleDelete, onEdit /* Remove other props */ }) {
+function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
 
   if (isLoading) {
     return <Spin tip="讀取中..." size="large" style={{ display: 'block', marginTop: '50px' }} />;
@@ -11,68 +12,63 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit /* Remove
     return <Alert message="讀取錯誤" description={error} type="error" showIcon />;
   }
 
-  const columns = [
-    {
-      title: '日期',
-      dataIndex: 'date',
-      key: 'date',
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      defaultSortOrder: 'descend',
-    },
-    {
-      title: '項目',
-      dataIndex: 'item',
-      key: 'item',
-    },
-    {
-      title: '總金額',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (text) => `NT$ ${text}`,
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
-    },
-    {
-      title: '付款人',
-      dataIndex: 'paidBy',
-      key: 'paidBy',
-      render: (paidBy) => (
-        <Tag color={paidBy === '均' ? 'blue' : 'green'}>{paidBy}</Tag>
-      ),
-      filters: [
-        { text: '均', value: '均' },
-        { text: '宥', value: '宥' },
-      ],
-      onFilter: (value, record) => record.paidBy.indexOf(value) === 0,
-    },
-    {
-      title: '均分金額',
-      dataIndex: 'splitAmount',
-      key: 'splitAmount',
-      render: (text) => `NT$ ${text}`,
-      sorter: (a, b) => a.splitAmount - b.splitAmount,
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          {/* The edit functionality can be re-implemented here if needed */}
-          {/* <Button type="link" onClick={() => onEdit(record)}>編輯</Button> */}
+  const renderItem = (record) => {
+    const menu = (
+      <Menu>
+        <Menu.Item key="edit" onClick={() => onEdit(record)}>
+          編輯
+        </Menu.Item>
+        <Menu.Item key="delete">
           <Popconfirm title="確定要刪除嗎？" onConfirm={() => handleDelete(record.id)}>
-            <Button type="link" danger>刪除</Button>
+            <span style={{ color: 'red' }}>刪除</span>
           </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+        </Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <List.Item>
+        <Card 
+          style={{ width: '100%' }}
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{record.item}</span>
+              <Tag color={record.paidBy === '均' ? 'blue' : 'green'}>{record.paidBy} 付款</Tag>
+            </div>
+          }
+          extra={
+            <Dropdown overlay={menu} trigger={['click']}>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
+          }
+        >
+          <p><strong>日期:</strong> {record.date}</p>
+          <p><strong>總金額:</strong> NT$ {record.totalAmount}</p>
+          <p><strong>均分金額:</strong> NT$ {record.splitAmount}</p>
+        </Card>
+      </List.Item>
+    );
+  };
 
   return (
-     <Table 
-      columns={columns} 
-      dataSource={records} 
-      rowKey="id" 
-      pagination={{ pageSize: 5 }}
-      scroll={{ x: 'max-content' }}
+     <List
+      grid={{
+        gutter: 16,
+        xs: 1,
+        sm: 1,
+        md: 2,
+        lg: 2,
+        xl: 3,
+        xxl: 3,
+      }}
+      dataSource={records}
+      renderItem={renderItem}
+      pagination={{
+        onChange: page => {
+          console.log(page);
+        },
+        pageSize: 6,
+      }}
     />
   );
 }
