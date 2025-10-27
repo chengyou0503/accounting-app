@@ -29,7 +29,7 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
       const updatedRecord = {
         ...record,
         ...values,
-        date: values.date.format('YYYY-MM-DD'),
+        date: values.date.hour(12).toISOString(), // Set time to noon in local time
         totalAmount: parseFloat(values.totalAmount),
         splitAmount: Math.round(parseFloat(values.totalAmount) / 2),
       };
