@@ -1,48 +1,71 @@
 import React from 'react';
+import { Card, Form, Input, DatePicker, InputNumber, Select, Button } from 'antd';
+import dayjs from 'dayjs';
+
+const { Option } = Select;
 
 function AddRecordForm({
-  date, setDate,
-  item, setItem,
-  totalAmount, setTotalAmount,
-  paidBy, setPaidBy,
-  splitAmount, setSplitAmount,
+  date,
+  setDate,
+  item,
+  setItem,
+  totalAmount,
+  paidBy,
+  setPaidBy,
+  splitAmount,
   handleSubmit,
-  handleTotalAmountChange
+  handleTotalAmountChange,
 }) {
+
+  const onDateChange = (date, dateString) => {
+    setDate(dateString);
+  };
+
   return (
-    <div className="form-container card">
-      <h2>新增一筆帳目</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>日期</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>消費項目</label>
-          <input type="text" placeholder="晚餐、買菜..." value={item} onChange={e => setItem(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label>總金額</label>
-          <input type="number" placeholder="320" value={totalAmount} onChange={handleTotalAmountChange} required />
-        </div>
-        <div className="form-group">
-          <label>支付者</label>
-          <div className="radio-group">
-            <label className={`radio-label ${paidBy === '均' ? 'checked' : ''}`}>
-              <input type="radio" name="paidBy" value="均" checked={paidBy === '均'} onChange={e => setPaidBy(e.target.value)} /> 均
-            </label>
-            <label className={`radio-label ${paidBy === '宥' ? 'checked' : ''}`}>
-              <input type="radio" name="paidBy" value="宥" checked={paidBy === '宥'} onChange={e => setPaidBy(e.target.value)} /> 宥
-            </label>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>個人分攤金額</label>
-          <input type="number" placeholder="160" value={splitAmount} onChange={e => setSplitAmount(e.target.value)} required />
-        </div>
-        <button type="submit" className="submit-btn">新增紀錄</button>
-      </form>
-    </div>
+    <Card title="新增紀錄">
+      <Form onFinish={handleSubmit} layout="vertical">
+        <Form.Item label="日期" required>
+          <DatePicker 
+            style={{ width: '100%' }} 
+            onChange={onDateChange} 
+            value={date ? dayjs(date) : null}
+            format="YYYY-MM-DD"
+          />
+        </Form.Item>
+        <Form.Item label="項目" required>
+          <Input value={item} onChange={(e) => setItem(e.target.value)} />
+        </Form.Item>
+        <Form.Item label="總金額" required>
+          <InputNumber 
+            style={{ width: '100%' }} 
+            value={totalAmount} 
+            onChange={handleTotalAmountChange} 
+            min={0}
+            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+          />
+        </Form.Item>
+        <Form.Item label="付款人" required>
+          <Select value={paidBy} onChange={(value) => setPaidBy(value)}>
+            <Option value="均">均</Option>
+            <Option value="宥">宥</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item label="均分金額">
+          <InputNumber 
+            style={{ width: '100%' }} 
+            value={splitAmount} 
+            disabled 
+            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+            新增
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
   );
 }
 

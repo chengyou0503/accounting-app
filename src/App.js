@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Layout, Row, Col } from 'antd';
+import 'antd/dist/reset.css';
 import './App.css';
 import Summary from './Summary';
 import AddRecordForm from './AddRecordForm';
 import RecordsList from './RecordsList';
+
+const { Header, Content } = Layout;
 
 // ==================================================================
 // 你的 Google Apps Script API 網址！
@@ -48,8 +52,7 @@ function App() {
   }, [fetchRecords]);
 
   // --- Event Handlers ---
-  const handleTotalAmountChange = (e) => {
-    const value = e.target.value;
+  const handleTotalAmountChange = (value) => {
     setTotalAmount(value);
     if (value && !isNaN(value)) {
       setSplitAmount(Math.round(value / 2));
@@ -171,44 +174,50 @@ function App() {
   console.log("Rendered Records:", records);
 
   return (
-    <div className="App">
-      <header className="app-header">
+    <Layout className="layout">
+      <Header style={{ background: '#fff', textAlign: 'center', padding: 0, borderBottom: '1px solid #f0f0f0' }}>
         <h1>我們的記帳本 🧡</h1>
-      </header>
-      <main className="container">
-        <div className="left-panel">
-          <Summary
-            junTotal={junTotal}
-            youTotal={youTotal}
-            handleDeleteAll={handleDeleteAll}
-          />
-          <AddRecordForm
-            date={date}
-            setDate={setDate}
-            item={item}
-            setItem={setItem}
-            totalAmount={totalAmount}
-            setTotalAmount={setTotalAmount}
-            paidBy={paidBy}
-            setPaidBy={setPaidBy}
-            splitAmount={splitAmount}
-            setSplitAmount={setSplitAmount}
-            handleSubmit={handleSubmit}
-            handleTotalAmountChange={handleTotalAmountChange}
-          />
+      </Header>
+      <Content style={{ padding: '20px 50px' }}>
+        <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 280 }}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} lg={8}>
+              <Summary
+                junTotal={junTotal}
+                youTotal={youTotal}
+                handleDeleteAll={handleDeleteAll}
+              />
+              <AddRecordForm
+                date={date}
+                setDate={setDate}
+                item={item}
+                setItem={setItem}
+                totalAmount={totalAmount}
+                setTotalAmount={setTotalAmount}
+                paidBy={paidBy}
+                setPaidBy={setPaidBy}
+                splitAmount={splitAmount}
+                setSplitAmount={setSplitAmount}
+                handleSubmit={handleSubmit}
+                handleTotalAmountChange={handleTotalAmountChange}
+              />
+            </Col>
+            <Col xs={24} lg={16}>
+              <RecordsList
+                records={records}
+                isLoading={isLoading}
+                error={error}
+                handleDelete={handleDelete}
+                editingId={editingId}
+                onEdit={handleEdit}
+                onCancelEdit={handleCancelEdit}
+                onUpdate={handleUpdateRecord}
+              />
+            </Col>
+          </Row>
         </div>
-        <RecordsList
-          records={records}
-          isLoading={isLoading}
-          error={error}
-          handleDelete={handleDelete}
-          editingId={editingId}
-          onEdit={handleEdit}
-          onCancelEdit={handleCancelEdit}
-          onUpdate={handleUpdateRecord}
-        />
-      </main>
-    </div>
+      </Content>
+    </Layout>
   );
 }
 
