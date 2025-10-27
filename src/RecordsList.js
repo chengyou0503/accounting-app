@@ -72,6 +72,7 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit /* Remove
       dataSource={records} 
       rowKey="id" 
       pagination={{ pageSize: 5 }}
+      scroll={{ x: 'max-content' }}
     />
   );
 }

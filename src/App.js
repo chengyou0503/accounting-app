@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Layout, Row, Col } from 'antd';
+import { Layout, Row, Col, ConfigProvider } from 'antd';
 import 'antd/dist/reset.css';
 import './App.css';
 import Summary from './Summary';
@@ -13,19 +13,21 @@ const { Header, Content } = Layout;
 const API_URL = "https://script.google.com/macros/s/AKfycbyr1Ai1AU4Fi5fhuGd03i0zOrfPt_bNh8GbOC1-amYO-btKcCHxjK0QZWwTrCdzZFJL/exec";
 // ==================================================================
 
+const cuteTheme = {
+  token: {
+    colorPrimary: '#ff7f50', // Coral Pink
+    borderRadius: 8,
+    fontFamily: 'Nunito, sans-serif',
+  },
+};
+
 function App() {
   // --- State Hooks ---
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingId, setEditingId] = useState(null); // For editing
-
-  // 表單相關 State
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [item, setItem] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
-  const [paidBy, setPaidBy] = useState('均');
-  const [splitAmount, setSplitAmount] = useState('');
+  // Editing state can be managed here if needed in the future
+  // const [editingId, setEditingId] = useState(null); 
 
   // --- Data Fetching ---
   const fetchRecords = useCallback(async () => {
@@ -52,45 +54,11 @@ function App() {
   }, [fetchRecords]);
 
   // --- Event Handlers ---
-  const handleTotalAmountChange = (value) => {
-    setTotalAmount(value);
-    if (value && !isNaN(value)) {
-      setSplitAmount(Math.round(value / 2));
-    } else {
-      setSplitAmount('');
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!date || !item || !totalAmount || !paidBy || !splitAmount) {
-      alert("所有欄位都必填喔！");
-      return;
-    }
-    const newRecord = { date, item, totalAmount: parseFloat(totalAmount), paidBy, splitAmount: parseFloat(splitAmount) };
-    const tempId = `temp-${Date.now()}`;
-    setRecords(prev => [{ ...newRecord, id: tempId, timestamp: new Date().toISOString() }, ...prev]);
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'create', data: newRecord })
-      });
-      const result = await response.json();
-      if (result.status !== 'success') throw new Error(result.message || 'Failed to create record.');
-      await fetchRecords();
-      setItem('');
-      setTotalAmount('');
-      setSplitAmount('');
-    } catch (err) {
-      alert(`新增失敗: ${err.message}`);
-      setRecords(prev => prev.filter(r => r.id !== tempId));
-    }
+  const handleFormSuccess = () => {
+    fetchRecords();
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("確定要刪除這筆紀錄嗎？")) return;
     const originalRecords = [...records];
     setRecords(prev => prev.filter(record => record.id !== id));
     try {
@@ -109,7 +77,6 @@ function App() {
   };
 
   const handleDeleteAll = async () => {
-    if (!window.confirm("確定要刪除【所有】紀錄嗎？這個動作無法復原！")) return;
     const originalRecords = [...records];
     setRecords([]);
     try {
@@ -127,39 +94,6 @@ function App() {
     }
   };
 
-  // --- Edit Handlers ---
-  const handleEdit = (record) => {
-    setEditingId(record.id);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingId(null);
-  };
-
-  const handleUpdateRecord = async (updatedRecord) => {
-    const originalRecords = [...records];
-    setRecords(records.map(r => r.id === updatedRecord.id ? updatedRecord : r));
-    setEditingId(null); // Exit edit mode optimistically
-
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'update', data: updatedRecord })
-        });
-        const result = await response.json();
-        if (result.status !== 'success') {
-            throw new Error(result.message || 'Failed to update record.');
-        }
-        // Optionally, re-fetch to get the final state from server
-        // await fetchRecords(); 
-    } catch (err) {
-        alert(`更新失敗: ${err.message}`);
-        setRecords(originalRecords); // Revert on error
-    }
-  };
-
   // --- 計算總額 ---
   const [junTotal, youTotal] = useMemo(() => {
     return records.reduce((acc, record) => {
@@ -170,54 +104,39 @@ function App() {
     }, [0, 0]);
   }, [records]);
 
-  // 在這裡加入 console.log 來觀察資料
-  console.log("Rendered Records:", records);
-
   return (
-    <Layout className="layout">
-      <Header style={{ background: '#fff', textAlign: 'center', padding: 0, borderBottom: '1px solid #f0f0f0' }}>
-        <h1>我們的記帳本 🧡</h1>
-      </Header>
-      <Content style={{ padding: '20px 50px' }}>
-        <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 280 }}>
-          <Row gutter={[16, 16]}>
-            <Col xs={24} lg={8}>
-              <Summary
-                junTotal={junTotal}
-                youTotal={youTotal}
-                handleDeleteAll={handleDeleteAll}
-              />
-              <AddRecordForm
-                date={date}
-                setDate={setDate}
-                item={item}
-                setItem={setItem}
-                totalAmount={totalAmount}
-                setTotalAmount={setTotalAmount}
-                paidBy={paidBy}
-                setPaidBy={setPaidBy}
-                splitAmount={splitAmount}
-                setSplitAmount={setSplitAmount}
-                handleSubmit={handleSubmit}
-                handleTotalAmountChange={handleTotalAmountChange}
-              />
-            </Col>
-            <Col xs={24} lg={16}>
-              <RecordsList
-                records={records}
-                isLoading={isLoading}
-                error={error}
-                handleDelete={handleDelete}
-                editingId={editingId}
-                onEdit={handleEdit}
-                onCancelEdit={handleCancelEdit}
-                onUpdate={handleUpdateRecord}
-              />
-            </Col>
-          </Row>
-        </div>
-      </Content>
-    </Layout>
+    <ConfigProvider theme={cuteTheme}>
+      <Layout className="layout">
+        <Header style={{ background: cuteTheme.token.colorPrimary, textAlign: 'center', padding: 0, borderBottom: '1px solid #f0f0f0' }}>
+          <h1 style={{ color: 'white' }}>我們的記帳本 🧡</h1>
+        </Header>
+        <Content style={{ padding: '20px 50px' }}>
+          <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 280, borderRadius: cuteTheme.token.borderRadius }}>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={8}>
+                <Summary
+                  junTotal={junTotal}
+                  youTotal={youTotal}
+                  handleDeleteAll={handleDeleteAll}
+                />
+                <AddRecordForm
+                  API_URL={API_URL}
+                  onSuccess={handleFormSuccess}
+                />
+              </Col>
+              <Col xs={24} lg={16}>
+                <RecordsList
+                  records={records}
+                  isLoading={isLoading}
+                  error={error}
+                  handleDelete={handleDelete}
+                />
+              </Col>
+            </Row>
+          </div>
+        </Content>
+      </Layout>
+    </ConfigProvider>
   );
 }
 
