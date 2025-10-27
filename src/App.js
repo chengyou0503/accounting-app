@@ -167,6 +167,9 @@ function App() {
     }, [0, 0]);
   }, [records]);
 
+  // 在這裡加入 console.log 來觀察資料
+  console.log("Rendered Records:", records);
+
   return (
     <div className="App">
       <header className="app-header">
