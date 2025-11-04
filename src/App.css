@@ -1,2 +1,16 @@
 /* We are using Ant Design's Layout component now, so custom layout styles are minimal. */
 /* You can add any global overrides or specific adjustments here if needed. */
+
+.ant-layout-content {
+    padding: 20px 50px;
+}
+
+@media (max-width: 768px) {
+    .ant-layout-content {
+        padding: 10px 15px;
+    }
+
+    .ant-layout-header h1 {
+        font-size: 1.5rem;
+    }
+}

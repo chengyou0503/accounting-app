@@ -31,7 +31,7 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
         ...values,
         date: values.date.hour(12).toISOString(), // Set time to noon in local time
         totalAmount: parseFloat(values.totalAmount),
-        splitAmount: Math.round(parseFloat(values.totalAmount) / 2),
+        splitAmount: parseFloat(values.splitAmount),
       };
       onUpdate(updatedRecord);
     });
@@ -73,11 +73,12 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
             <Option value="宥">宥</Option>
           </Select>
         </Form.Item>
-        <Form.Item label="均分金額" name="splitAmount">
+        <Form.Item label="分攤金額" name="splitAmount">
           <InputNumber
             style={{ width: '100%' }}
-            disabled
+            min={0}
             formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\$\s?|(,*)/g, '')}
           />
         </Form.Item>
       </Form>

@@ -16,10 +16,10 @@ function Summary({ junTotal, youTotal, handleDeleteAll }) {
   return (
     <Card title="收支總覽" style={{ marginBottom: '20px' }}>
       <Row gutter={16}>
-        <Col span={12}>
+        <Col xs={24} md={12}>
           <Statistic title="均的總支出" value={Math.round(junTotal)} prefix={<UserOutlined />} />
         </Col>
-        <Col span={12}>
+        <Col xs={24} md={12}>
           <Statistic title="宥的總支出" value={Math.round(youTotal)} prefix={<UserOutlined />} />
         </Col>
       </Row>
