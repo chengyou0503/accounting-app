@@ -4,7 +4,7 @@
 
 const SHEET_NAME = "records";
 
-// 更新欄位對應，移除 '分類'
+// 預期的欄位標題
 const FIELD_MAP = {
   'id': 'ID',
   'date': '日期',
@@ -13,6 +13,26 @@ const FIELD_MAP = {
   'splitAmount': '分攤金額',
   'paidBy': '付款人'
 };
+
+// !!! --- 一次性設定功能 --- !!!
+// 請在 Apps Script 編輯器中手動「執行」此功能一次，以確保試算表欄位完全正確。
+// 警告：執行後會清空您目前的資料！
+function setupSheet() {
+  const sheet = getSheet();
+  sheet.clear(); // 清空工作表
+  const headers = [
+    FIELD_MAP.id, 
+    FIELD_MAP.date, 
+    FIELD_MAP.description, 
+    FIELD_MAP.amount, 
+    FIELD_MAP.splitAmount, 
+    FIELD_MAP.paidBy
+  ];
+  // 將 100% 正確的標題寫入第一列
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  SpreadsheetApp.flush(); // 立即套用變更
+}
+
 
 const REVERSE_FIELD_MAP = Object.entries(FIELD_MAP).reduce((acc, [key, value]) => {
   acc[value] = key;
@@ -41,7 +61,7 @@ function doPost(e) {
       case 'delete':
         deleteRecord(request.data.id);
         return createJsonResponse({ status: 'success', message: '紀錄已刪除' });
-      case 'settle': // 新增的結算操作
+      case 'settle':
         settleRecords();
         return createJsonResponse({ status: 'success', message: '紀錄已結算' });
       default:
@@ -52,7 +72,6 @@ function doPost(e) {
   }
 }
 
-// --- 新增的結算功能 ---
 function settleRecords() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sourceSheet = ss.getSheetByName(SHEET_NAME);
@@ -64,7 +83,6 @@ function settleRecords() {
 
   const data = dataRange.getValues();
   
-  // 格式化日期為 YYYY-MM-DD
   const today = new Date();
   const formattedDate = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
   const newSheetName = `結算-${formattedDate}`;
@@ -74,15 +92,10 @@ function settleRecords() {
     destinationSheet = ss.insertSheet(newSheetName);
   }
   
-  // 將資料複製到新的結算工作表
   destinationSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
-  
-  // 清除原工作表的紀錄 (保留標頭)
   sourceSheet.deleteRows(2, sourceSheet.getLastRow() - 1);
 }
 
-
-// --- Helper Functions ---
 function getSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -98,7 +111,6 @@ function getHeaders(sheet) {
   return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
 }
 
-// --- CRUD Operations (已更新) ---
 function readAllRecords() {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
@@ -152,5 +164,3 @@ function deleteRecord(id) {
   }
   throw new Error("找不到要刪除的紀錄");
 }
-
-
