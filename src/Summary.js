@@ -52,7 +52,7 @@ function Summary({ junTotal, youTotal, handleSettle }) {
           danger
           onClick={showModal}
         >
-          ✔️ 結算
+          結算
         </Button>
       </Card>
 
