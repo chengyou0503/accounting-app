@@ -6,17 +6,22 @@ import dayjs from 'dayjs';
 const { Title, Text } = Typography;
 
 function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
+  console.log("RecordsList: 接收到的 records:", records);
 
   if (isLoading) {
     return <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>;
   }
 
   if (error) {
+    console.error("RecordsList: 錯誤:", error);
     return <Alert message="錯誤" description={error} type="error" showIcon />;
   }
 
   const junRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '均');
   const youRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '宥');
+
+  console.log("RecordsList: 過濾後的 junRecords:", junRecords);
+  console.log("RecordsList: 過濾後的 youRecords:", youRecords);
 
   const renderRecordCard = (record) => (
     <Card 
