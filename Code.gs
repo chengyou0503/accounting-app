@@ -78,22 +78,44 @@ function createJsonResponse(obj) {
 
 function readAllRecords() {
   const sheet = getSheet();
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return [];
+  const dataRange = sheet.getDataRange();
+  const values = dataRange.getValues();
+  
+  if (values.length <= 1) return [];
 
-  const headers = data.shift(); // 取得標頭列
+  const headers = values.shift();
+  const idColumnIndex = headers.indexOf(FIELD_MAP.id);
+  let changesMade = false;
 
-  return data.map(row => {
+  const records = values.map((row, rowIndex) => {
     const record = {};
-    // 確保每個 record 物件都包含 FIELD_MAP 中定義的所有鍵
+    let currentId = (idColumnIndex !== -1) ? row[idColumnIndex] : null;
+
+    // 如果 ID 為空，則產生新 ID 並準備回寫
+    if (!currentId) {
+      currentId = "record-" + new Date().getTime() + "-" + rowIndex;
+      if (idColumnIndex !== -1) {
+        values[rowIndex][idColumnIndex] = currentId; // 更新 values 陣列
+        changesMade = true;
+      }
+    }
+
     for (const key in FIELD_MAP) {
       const headerName = FIELD_MAP[key];
-      const index = headers.indexOf(headerName); // 根據標頭名稱找到對應的索引
-      // 如果找到了該欄位，就取其值；否則設為 null
+      const index = headers.indexOf(headerName);
       record[key] = (index !== -1) ? row[index] : null;
     }
+    // 確保回傳的 record 物件中的 id 是最新的
+    record.id = currentId;
     return record;
   });
+
+  // 如果有任何 ID 被新增，則一次性將更新後的資料回寫到工作表
+  if (changesMade) {
+    sheet.getRange(2, 1, values.length, headers.length).setValues(values);
+  }
+
+  return records;
 }
 
 function createRecord(data) {
