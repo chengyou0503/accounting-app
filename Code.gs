@@ -7,7 +7,6 @@ const SHEET_NAME = "records";
 // 更新欄位對應，移除 '分類'
 const FIELD_MAP = {
   'id': 'ID',
-  'timestamp': '時間',
   'date': '日期',
   'description': '項目',
   'amount': '總金額',
@@ -118,7 +117,7 @@ function readAllRecords() {
 function createRecord(data) {
   const sheet = getSheet();
   const headers = getHeaders(sheet);
-  const newRecord = { ...data, id: "record-" + new Date().getTime(), timestamp: new Date().toISOString() };
+  const newRecord = { ...data, id: "record-" + new Date().getTime() };
   const newRow = headers.map(header => newRecord[REVERSE_FIELD_MAP[header]] || "");
   sheet.appendRow(newRow);
   return newRecord;

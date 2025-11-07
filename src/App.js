@@ -39,7 +39,7 @@ function App() {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const result = await response.json();
       if (result.status === 'success') {
-        setRecords(result.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+        setRecords(result.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
       } else {
         throw new Error(result.message || 'Failed to fetch data from API.');
       }
