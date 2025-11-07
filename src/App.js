@@ -108,8 +108,7 @@ function App() {
   };
 
   const handleUpdateRecord = async (updatedRecord) => {
-    const originalRecords = [...records];
-    setRecords(records.map(r => r.id === updatedRecord.id ? updatedRecord : r));
+    // Close the modal immediately. The loading state will show on the main list.
     setIsEditModalVisible(false);
     setEditingRecord(null);
 
@@ -124,9 +123,13 @@ function App() {
         if (result.status !== 'success') {
             throw new Error(result.message || 'Failed to update record.');
         }
+        // On success, refetch all records from the source of truth.
+        // This is more reliable than an optimistic update.
+        fetchRecords();
     } catch (err) {
         alert(`更新失敗: ${err.message}`);
-        setRecords(originalRecords);
+        // Also refetch on error to ensure UI consistency.
+        fetchRecords();
     }
   };
 
