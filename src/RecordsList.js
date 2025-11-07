@@ -15,8 +15,8 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
     return <Alert message="錯誤" description={error} type="error" showIcon />;
   }
 
-  const junRecords = records.filter(r => r.paidBy === '均');
-  const youRecords = records.filter(r => r.paidBy === '宥');
+  const junRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '均');
+  const youRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '宥');
 
   const renderRecordCard = (record) => (
     <Card 
@@ -30,7 +30,7 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
           <br />
           <Text type="secondary">{dayjs(record.date).format('YYYY-MM-DD')}</Text>
         </Col>
-        <Col flex="120px" style={{ textAlign: 'right' }}>
+        <Col flex="120px" style={{ textAlign: 'center' }}>
           <Text style={{ fontSize: '16px' }}>總額: ${Math.round(record.amount)}</Text>
           <br />
           <Text type="secondary">分攤: ${Math.round(record.splitAmount)}</Text>
