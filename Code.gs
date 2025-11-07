@@ -135,9 +135,18 @@ function readAllRecords() {
 
 function createRecord(data) {
   const sheet = getSheet();
-  const headers = getHeaders(sheet);
   const newRecord = { ...data, id: "record-" + new Date().getTime() };
-  const newRow = headers.map(header => newRecord[REVERSE_FIELD_MAP[header]] || "");
+  
+  // 建立一個保證順序的陣列來寫入
+  const newRow = [
+    newRecord.id,
+    newRecord.date,
+    newRecord.description,
+    newRecord.amount,
+    newRecord.splitAmount,
+    newRecord.paidBy
+  ];
+
   sheet.appendRow(newRow);
   return newRecord;
 }
