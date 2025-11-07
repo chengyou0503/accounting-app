@@ -4,14 +4,14 @@ import { UserOutlined, PayCircleOutlined, ArrowRightOutlined } from '@ant-design
 
 const { Title, Text } = Typography;
 
-function Summary({ totalJunPaid, totalYouPaid, junShouldPay, youShouldPay, handleSettle }) {
-  const junDifference = totalJunPaid - junShouldPay;
-  const youDifference = totalYouPaid - youShouldPay;
+function Summary({ totalJunPaid, totalYouPaid, junOwesYou, handleSettle }) {
 
   let summaryMessage;
-  if (Math.abs(junDifference) < 0.01) {
+  const amountOwed = Math.abs(junOwesYou);
+
+  if (amountOwed < 0.01) {
     summaryMessage = <Text style={{ fontSize: 18, color: '#52c41a' }}>雙方帳務已結清！</Text>;
-  } else if (junDifference > 0) {
+  } else if (junOwesYou < 0) { // 負數代表宥欠均
     summaryMessage = (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
         <UserOutlined style={{ color: '#1890ff', marginRight: 8 }} />
@@ -19,10 +19,10 @@ function Summary({ totalJunPaid, totalYouPaid, junShouldPay, youShouldPay, handl
         <ArrowRightOutlined style={{ margin: '0 12px' }} />
         <Text strong style={{ color: '#ff7f50' }}>均</Text>
         <PayCircleOutlined style={{ color: 'green', marginLeft: 12, marginRight: 8 }} />
-        <Text strong style={{ color: 'green' }}>${Math.abs(junDifference).toFixed(0)}</Text>
+        <Text strong style={{ color: 'green' }}>${amountOwed.toFixed(0)}</Text>
       </div>
     );
-  } else {
+  } else { // 正數代表均欠宥
     summaryMessage = (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
         <UserOutlined style={{ color: '#ff7f50', marginRight: 8 }} />
@@ -30,7 +30,7 @@ function Summary({ totalJunPaid, totalYouPaid, junShouldPay, youShouldPay, handl
         <ArrowRightOutlined style={{ margin: '0 12px' }} />
         <Text strong style={{ color: '#1890ff' }}>宥</Text>
         <PayCircleOutlined style={{ color: 'green', marginLeft: 12, marginRight: 8 }} />
-        <Text strong style={{ color: 'green' }}>${Math.abs(youDifference).toFixed(0)}</Text>
+        <Text strong style={{ color: 'green' }}>${amountOwed.toFixed(0)}</Text>
       </div>
     );
   }

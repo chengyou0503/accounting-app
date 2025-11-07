@@ -140,27 +140,30 @@ function App() {
   };
 
   // --- 計算總額 ---
-  const { junShouldPay, youShouldPay, totalJunPaid, totalYouPaid } = useMemo(() => {
+  const { totalJunPaid, totalYouPaid, junOwesYou } = useMemo(() => {
     let totalJunPaid = 0;
     let totalYouPaid = 0;
+    let junOwesYou = 0; // 正數代表均欠宥，負數代表宥欠均
 
     records.forEach(record => {
       const amount = parseFloat(record.amount) || 0;
+      const splitAmount = parseFloat(record.splitAmount) || 0;
+
       if (record.paidBy === '均') {
         totalJunPaid += amount;
+        // 宥欠均 splitAmount，所以 junOwesYou 減少
+        junOwesYou -= splitAmount;
       } else if (record.paidBy === '宥') {
         totalYouPaid += amount;
+        // 均欠宥 splitAmount，所以 junOwesYou 增加
+        junOwesYou += splitAmount;
       }
     });
 
-    const totalAmount = totalJunPaid + totalYouPaid;
-    const eachShouldPay = totalAmount / 2;
-
     return { 
-      junShouldPay: eachShouldPay, 
-      youShouldPay: eachShouldPay,
       totalJunPaid,
-      totalYouPaid
+      totalYouPaid,
+      junOwesYou
     };
   }, [records]);
 
@@ -177,8 +180,7 @@ function App() {
                 <Summary
                   totalJunPaid={totalJunPaid}
                   totalYouPaid={totalYouPaid}
-                  junShouldPay={junShouldPay}
-                  youShouldPay={youShouldPay}
+                  junOwesYou={junOwesYou}
                   handleSettle={handleSettle}
                 />
                 <AddRecordForm
