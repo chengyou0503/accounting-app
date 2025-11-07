@@ -7,26 +7,23 @@ const { Option } = Select;
 function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   const [form] = Form.useForm();
 
-  // This effect correctly populates the form when the modal opens.
+  // 當 `record` 或 `visible` 狀態改變時，此 effect 會執行
   useEffect(() => {
     if (visible && record) {
+      // 將 record 的資料填入表單，並確保日期欄位被轉換成 dayjs 物件
       form.setFieldsValue({
-        timestamp: dayjs(record.timestamp),
-        description: record.description,
-        amount: parseFloat(record.amount) || 0,
-        paidBy: record.paidBy,
-        splitAmount: parseFloat(record.splitAmount) || 0,
+        ...record,
+        date: dayjs(record.date), // <--- 關鍵修正！
       });
     }
   }, [visible, record, form]);
 
   const handleUpdate = () => {
     form.validateFields().then(values => {
-      // We only pass the raw form values up.
-      // The parent component (App.js) will be responsible for adding the ID.
+      // 將表單中的 dayjs 物件格式化回 'YYYY-MM-DD' 字串
       const formValues = {
         ...values,
-        timestamp: values.timestamp.toISOString(),
+        date: values.date.format('YYYY-MM-DD'),
       };
       onUpdate(formValues);
     }).catch(info => {
@@ -42,11 +39,11 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
       onOk={handleUpdate}
       okText="更新"
       cancelText="取消"
-      destroyOnClose // Ensures the form is reset every time it's closed.
+      destroyOnClose
     >
-      {/* Form field names now match the API keys directly */}
+      {/* 表單欄位名稱現在與 record 物件的 key 一致 */}
       <Form form={form} layout="vertical">
-        <Form.Item label="日期" name="timestamp" rules={[{ required: true, message: '請選擇日期!' }]}>
+        <Form.Item label="日期" name="date" rules={[{ required: true, message: '請選擇日期!' }]}>
           <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
         </Form.Item>
         <Form.Item label="項目" name="description" rules={[{ required: true, message: '請輸入項目!' }]}>
