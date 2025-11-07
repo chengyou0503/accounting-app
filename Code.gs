@@ -85,6 +85,7 @@ function readAllRecords() {
 
   const headers = values.shift();
   const idColumnIndex = headers.indexOf(FIELD_MAP.id);
+  const paidByColumnIndex = headers.indexOf(FIELD_MAP.paidBy); // 取得「付款人」欄位的索引
   let changesMade = false;
 
   const records = values.map((row, rowIndex) => {
@@ -95,9 +96,15 @@ function readAllRecords() {
     if (!currentId) {
       currentId = "record-" + new Date().getTime() + "-" + rowIndex;
       if (idColumnIndex !== -1) {
-        values[rowIndex][idColumnIndex] = currentId; // 更新 values 陣列
+        values[rowIndex][idColumnIndex] = currentId;
         changesMade = true;
       }
+    }
+    
+    // 如果「付款人」為空，則設定為「待確認」
+    if (paidByColumnIndex !== -1 && !row[paidByColumnIndex]) {
+      row[paidByColumnIndex] = "待確認";
+      changesMade = true;
     }
 
     for (const key in FIELD_MAP) {
@@ -105,12 +112,10 @@ function readAllRecords() {
       const index = headers.indexOf(headerName);
       record[key] = (index !== -1) ? row[index] : null;
     }
-    // 確保回傳的 record 物件中的 id 是最新的
     record.id = currentId;
     return record;
   });
 
-  // 如果有任何 ID 被新增，則一次性將更新後的資料回寫到工作表
   if (changesMade) {
     sheet.getRange(2, 1, values.length, headers.length).setValues(values);
   }
