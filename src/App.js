@@ -34,18 +34,25 @@ function App() {
   const fetchRecords = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    console.log("1. [fetchRecords] 開始獲取資料...");
     try {
       const response = await fetch(`${API_URL}?action=read`);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      console.log("2. [fetchRecords] 收到來自 API 的回應:", response);
+      if (!response.ok) throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       const result = await response.json();
-      if (result.status === 'success') {
+      console.log("3. [fetchRecords] 解析後的 JSON 結果:", result);
+      if (result.status === 'success' && Array.isArray(result.data)) {
+        console.log("4. [fetchRecords] API 請求成功，準備設定 records 狀態:", result.data);
         setRecords(result.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
       } else {
-        throw new Error(result.message || 'Failed to fetch data from API.');
+        console.error("API 回傳的資料格式不正確，result.data 不是一個陣列:", result.data);
+        throw new Error(result.message || 'API 回傳的資料格式不正確。');
       }
     } catch (err) {
+      console.error("5. [fetchRecords] 在 try-catch 區塊捕獲到錯誤:", err);
       setError(err.message);
     } finally {
+      console.log("6. [fetchRecords] 執行結束。");
       setIsLoading(false);
     }
   }, []);
@@ -56,8 +63,12 @@ function App() {
 
   // --- Event Handlers ---
   const handleFormSuccess = (newRecord) => {
-    // Add the new record to the top of the list, avoiding a re-fetch
-    setRecords(prevRecords => [newRecord, ...prevRecords].sort((a, b) => new Date(b.date) - new Date(a.date)));
+    console.log("handleFormSuccess: 收到新紀錄:", newRecord);
+    setRecords(prevRecords => {
+      const updatedRecords = [newRecord, ...prevRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+      console.log("handleFormSuccess: 更新後的 records 狀態:", updatedRecords);
+      return updatedRecords;
+    });
   };
 
   const handleDelete = async (id) => {
@@ -142,6 +153,7 @@ function App() {
 
   // --- 計算總額 ---
   const { totalJunPaid, totalYouPaid, junOwesYou } = useMemo(() => {
+    console.log("useMemo: 正在計算總額，records:", records);
     let totalJunPaid = 0;
     let totalYouPaid = 0;
     let junOwesYou = 0; // 正數代表均欠宥，負數代表宥欠均
@@ -152,15 +164,13 @@ function App() {
 
       if (record.paidBy === '均') {
         totalJunPaid += amount;
-        // 宥欠均 splitAmount，所以 junOwesYou 減少
         junOwesYou -= splitAmount;
       } else if (record.paidBy === '宥') {
         totalYouPaid += amount;
-        // 均欠宥 splitAmount，所以 junOwesYou 增加
         junOwesYou += splitAmount;
       }
     });
-
+    console.log("useMemo: 計算結果 - totalJunPaid:", totalJunPaid, ", totalYouPaid:", totalYouPaid, ", junOwesYou:", junOwesYou);
     return { 
       totalJunPaid,
       totalYouPaid,
