@@ -44,7 +44,7 @@ function AddRecordForm({ API_URL, onSuccess }) {
     <Card title="新增紀錄">
       <Form form={form} onFinish={handleSubmit} layout="vertical" initialValues={{ paidBy: '均', date: dayjs() }}>
         <Form.Item label="日期" name="date" rules={[{ required: true, message: '請選擇日期!' }]}>
-          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" allowClear={false} />
         </Form.Item>
         <Form.Item label="項目" name="item" rules={[{ required: true, message: '請輸入項目!' }]}>
           <Input />
