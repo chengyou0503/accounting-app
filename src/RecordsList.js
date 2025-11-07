@@ -15,8 +15,8 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
     return <Alert message="錯誤" description={error} type="error" showIcon />;
   }
 
-  const junRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '均');
-  const youRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '宥');
+  const junRecords = records; // TEMPORARY: Display all records to ensure rendering works
+  const youRecords = []; // TEMPORARY: Clear this list
 
   const renderRecordCard = (record) => (
     <Card 
