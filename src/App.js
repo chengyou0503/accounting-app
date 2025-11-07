@@ -34,18 +34,31 @@ function App() {
   const fetchRecords = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    console.log("1. [fetchRecords] 開始獲取資料 (正在使用測試模式)...");
     try {
-      const response = await fetch(`${API_URL}?action=read`);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      // 暫時使用 action=test 來獲取寫死的測試資料
+      const response = await fetch(`${API_URL}?action=test`);
+      console.log("2. [fetchRecords] 收到來自 API 的回應:", response);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
       const result = await response.json();
-      if (result.status === 'success') {
+      console.log("3. [fetchRecords] 解析後的 JSON 結果:", result);
+
+      if (result.status === 'success' && Array.isArray(result.data)) {
+        console.log("4. [fetchRecords] API 請求成功，準備設定 records 狀態:", result.data);
         setRecords(result.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
       } else {
-        throw new Error(result.message || 'Failed to fetch data from API.');
+        console.error("API 回傳的資料格式不正確，result.data 不是一個陣列:", result.data);
+        throw new Error(result.message || 'API 回傳的資料格式不正確。');
       }
     } catch (err) {
+      console.error("5. [fetchRecords] 在 try-catch 區塊捕獲到錯誤:", err);
       setError(err.message);
     } finally {
+      console.log("6. [fetchRecords] 執行結束。");
       setIsLoading(false);
     }
   }, []);
