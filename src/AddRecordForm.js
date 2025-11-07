@@ -64,13 +64,30 @@ function AddRecordForm({ API_URL, onSuccess }) {
             <Option value="宥">宥</Option>
           </Select>
         </Form.Item>
-        <Form.Item label="分攤金額" name="splitAmount">
-          <InputNumber
-            style={{ width: '100%' }}
-            min={0}
-            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={value => value.replace(/\$\s?|(,*)/g, '')}
-          />
+        <Form.Item label="分攤金額">
+          <Row align="middle">
+            <Col span={16}>
+              <Form.Item name="splitAmount" noStyle>
+                <InputNumber
+                  style={{ width: '100%' }}
+                  min={0}
+                  formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Button 
+                style={{ width: '100%' }}
+                onClick={() => {
+                  const totalAmount = form.getFieldValue('totalAmount');
+                  form.setFieldsValue({ splitAmount: totalAmount });
+                }}
+              >
+                設為全額
+              </Button>
+            </Col>
+          </Row>
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
