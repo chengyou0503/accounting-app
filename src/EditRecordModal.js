@@ -10,10 +10,10 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   // 當 `record` 或 `visible` 狀態改變時，此 effect 會執行
   useEffect(() => {
     if (visible && record) {
-      // 將 record 的資料填入表單，並確保日期欄位被轉換成 dayjs 物件
+      // 進行更安全的轉換：只有當 record.date 存在時，才轉換為 dayjs 物件
       form.setFieldsValue({
         ...record,
-        date: dayjs(record.date), // <--- 關鍵修正！
+        date: record.date ? dayjs(record.date) : null, // <--- 關鍵修正！
       });
     }
   }, [visible, record, form]);
