@@ -11,7 +11,7 @@ const { Header, Content } = Layout;
 
 // ==================================================================
 // 你的 Google Apps Script API 網址！
-const API_URL = "https://script.google.com/macros/s/AKfycbxUee3DrWobvPClM5JLXo8ZhXDGGXGYOO-tYDiDmsJLkIgIVgf8FHgFKse_ggTom4Ha/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxdB1GNlu5No0Ed0sGMy-ROOGpWQvem_odPgzROAjX_uBbHxGWtIgkM1XXlysEI6qvm/exec";
 // ==================================================================
 
 const cuteTheme = {
