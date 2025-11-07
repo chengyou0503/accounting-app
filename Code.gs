@@ -107,20 +107,27 @@ function createJsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function getHeaders(sheet) {
-  return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-}
-
 function readAllRecords() {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
-  const headers = data.shift();
+  
+  const headers = data.shift(); // Still need to remove the header row
+  const headerMap = headers.reduce((acc, header, index) => {
+    acc[header] = index;
+    return acc;
+  }, {});
+
+  const expectedHeaders = Object.values(FIELD_MAP);
+
   return data.map(row => {
     const record = {};
-    headers.forEach((header, index) => {
+    expectedHeaders.forEach(header => {
       const englishKey = REVERSE_FIELD_MAP[header];
-      if (englishKey) record[englishKey] = row[index];
+      const colIndex = headerMap[header];
+      if (englishKey && colIndex !== undefined) {
+        record[englishKey] = row[colIndex];
+      }
     });
     return record;
   });
