@@ -42,10 +42,10 @@ function Summary({ totalJunPaid, totalYouPaid, junOwesYou, handleSettle }) {
         {summaryMessage}
       </div>
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={12}>
+        <Col span={12} style={{ textAlign: 'center' }}>
           <Statistic title="均的總支出" value={totalJunPaid.toFixed(0)} prefix="$" valueStyle={{ color: '#ff7f50' }} />
         </Col>
-        <Col span={12}>
+        <Col span={12} style={{ textAlign: 'center' }}>
           <Statistic title="宥的總支出" value={totalYouPaid.toFixed(0)} prefix="$" valueStyle={{ color: '#1890ff' }} />
         </Col>
       </Row>

@@ -91,24 +91,22 @@ function readAllRecords() {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
-  
-  const headers = data.shift();
-  const headerMap = headers.reduce((acc, header, index) => {
-    acc[header] = index;
-    return acc;
-  }, {});
 
-  const expectedHeaders = Object.values(FIELD_MAP);
+  const headers = data.shift(); // Get header row
+  const headerIndexMap = headers.reduce((map, header, i) => {
+    map[header] = i;
+    return map;
+  }, {});
 
   return data.map(row => {
     const record = {};
-    expectedHeaders.forEach(header => {
-      const englishKey = REVERSE_FIELD_MAP[header];
-      const colIndex = headerMap[header];
-      if (englishKey && colIndex !== undefined) {
-        record[englishKey] = row[colIndex];
+    for (const key in FIELD_MAP) {
+      const header = FIELD_MAP[key];
+      const index = headerIndexMap[header];
+      if (index !== undefined) {
+        record[key] = row[index];
       }
-    });
+    }
     return record;
   });
 }
