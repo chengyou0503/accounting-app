@@ -7,21 +7,14 @@ const { Option } = Select;
 function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   const [form] = Form.useForm();
 
-  // This effect runs when the modal becomes visible or the record data changes.
-  // It's responsible for populating the form with the correct data format.
+  // This effect correctly populates the form when the modal opens.
   useEffect(() => {
     if (visible && record) {
       form.setFieldsValue({
-        // The form field for the date is named 'timestamp'
         timestamp: dayjs(record.timestamp),
-        // The form field for description is named 'item'
-        item: record.description,
-        // The form field for amount is named 'totalAmount'
-        // We must parse it to a number in case it's a string from the API
-        totalAmount: parseFloat(record.amount) || 0,
-        // The form field for the paidBy is named 'paidBy'
+        description: record.description,
+        amount: parseFloat(record.amount) || 0,
         paidBy: record.paidBy,
-        // The form field for split amount is named 'splitAmount'
         splitAmount: parseFloat(record.splitAmount) || 0,
       });
     }
@@ -29,23 +22,13 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
 
   const handleUpdate = () => {
     form.validateFields().then(values => {
-      // Construct the object to be sent to the backend API
-      const updatedRecord = {
-        // CRITICAL: Pass the original record's ID back
-        id: record.id,
-        // The backend expects a 'description' field
-        description: values.item,
-        // The backend expects an 'amount' field
-        amount: parseFloat(values.totalAmount),
-        // The backend expects a 'splitAmount' field
-        splitAmount: parseFloat(values.splitAmount),
-        // The backend expects a 'paidBy' field
-        paidBy: values.paidBy,
-        // The backend expects a 'timestamp' field as an ISO string
+      // We only pass the raw form values up.
+      // The parent component (App.js) will be responsible for adding the ID.
+      const formValues = {
+        ...values,
         timestamp: values.timestamp.toISOString(),
       };
-      // Call the update function passed from App.js
-      onUpdate(updatedRecord);
+      onUpdate(formValues);
     }).catch(info => {
       console.log('Validate Failed:', info);
     });
@@ -59,17 +42,17 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
       onOk={handleUpdate}
       okText="更新"
       cancelText="取消"
-      destroyOnClose // This will destroy the form state when modal is closed
+      destroyOnClose // Ensures the form is reset every time it's closed.
     >
+      {/* Form field names now match the API keys directly */}
       <Form form={form} layout="vertical">
-        {/* The name here MUST match the key in setFieldsValue and the key read in handleUpdate */}
         <Form.Item label="日期" name="timestamp" rules={[{ required: true, message: '請選擇日期!' }]}>
           <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
         </Form.Item>
-        <Form.Item label="項目" name="item" rules={[{ required: true, message: '請輸入項目!' }]}>
+        <Form.Item label="項目" name="description" rules={[{ required: true, message: '請輸入項目!' }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="總金額" name="totalAmount" rules={[{ required: true, message: '請輸入總金額!' }]}>
+        <Form.Item label="總金額" name="amount" rules={[{ required: true, message: '請輸入總金額!' }]}>
           <InputNumber
             style={{ width: '100%' }}
             min={0}
