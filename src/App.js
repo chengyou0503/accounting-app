@@ -159,7 +159,6 @@ function App() {
     let junOwesYou = 0; // 正數代表均欠宥，負數代表宥欠均
 
     records.forEach(record => {
-      console.log("useMemo loop: 正在處理 record，paidBy 的值是:", record.paidBy);
       const amount = parseFloat(record.amount) || 0;
       const splitAmount = parseFloat(record.splitAmount) || 0;
 
@@ -169,6 +168,9 @@ function App() {
       } else if (record.paidBy === '宥') {
         totalYouPaid += amount;
         junOwesYou += splitAmount;
+      } else {
+        // 當 paidBy 的值不是 '均' 或 '宥' 時，在控制台顯示警告
+        console.warn(`[資料問題] 發現一筆紀錄的 '付款人(paidBy)' 欄位值無效: '${record.paidBy}'。該筆紀錄將不被計入總額。`, record);
       }
     });
     console.log("useMemo: 計算結果 - totalJunPaid:", totalJunPaid, ", totalYouPaid:", totalYouPaid, ", junOwesYou:", junOwesYou);

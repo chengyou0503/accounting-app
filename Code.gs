@@ -85,13 +85,12 @@ function readAllRecords() {
 
   return data.map(row => {
     const record = {};
-    // 遍歷所有已知的欄位，確保不錯過任何一個
+    // 確保每個 record 物件都包含 FIELD_MAP 中定義的所有鍵
     for (const key in FIELD_MAP) {
       const headerName = FIELD_MAP[key];
       const index = headers.indexOf(headerName); // 根據標頭名稱找到對應的索引
-      if (index !== -1) { // 如果找到了該欄位
-        record[key] = row[index];
-      }
+      // 如果找到了該欄位，就取其值；否則設為 null
+      record[key] = (index !== -1) ? row[index] : null;
     }
     return record;
   });
