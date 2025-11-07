@@ -159,6 +159,7 @@ function App() {
     let junOwesYou = 0; // 正數代表均欠宥，負數代表宥欠均
 
     records.forEach(record => {
+      console.log("useMemo loop: 正在處理 record，paidBy 的值是:", record.paidBy);
       const amount = parseFloat(record.amount) || 0;
       const splitAmount = parseFloat(record.splitAmount) || 0;
 
