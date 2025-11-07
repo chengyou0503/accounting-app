@@ -1,10 +1,9 @@
 // ==================================================================
-// 記帳 App 後端 - v4 (最終修正版)
+// 記帳 App 後端 - v5 (最終修正版)
 // ==================================================================
 
 const SHEET_NAME = "records";
 
-// 預期的欄位標題
 const FIELD_MAP = {
   'id': 'ID',
   'date': '日期',
@@ -18,6 +17,15 @@ const REVERSE_FIELD_MAP = Object.entries(FIELD_MAP).reduce((acc, [key, value]) =
   acc[value] = key;
   return acc;
 }, {});
+
+// !!! --- 一次性設定功能 --- !!!
+function setupSheet() {
+  const sheet = getSheet();
+  sheet.clear();
+  const headers = Object.values(FIELD_MAP);
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  SpreadsheetApp.flush();
+}
 
 function doGet(e) {
   try {
@@ -52,34 +60,13 @@ function doPost(e) {
   }
 }
 
-function settleRecords() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sourceSheet = ss.getSheetByName(SHEET_NAME);
-  const dataRange = sourceSheet.getDataRange();
-  
-  if (dataRange.getNumRows() <= 1) {
-    throw new Error("沒有可結算的紀錄");
-  }
-
-  const data = dataRange.getValues();
-  
-  const today = new Date();
-  const formattedDate = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
-  const newSheetName = `結算-${formattedDate}`;
-  
-  let destinationSheet = ss.getSheetByName(newSheetName);
-  if (!destinationSheet) {
-    destinationSheet = ss.insertSheet(newSheetName);
-  }
-  
-  destinationSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
-  sourceSheet.deleteRows(2, sourceSheet.getLastRow() - 1);
-}
-
 function getSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) throw new Error(`找不到名稱為 "${SHEET_NAME}" 的工作表`);
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    setupSheet(); // 如果工作表不存在，自動建立並設定標頭
+  }
   return sheet;
 }
 
@@ -87,23 +74,22 @@ function createJsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
+// --- CRUD Operations (最終修正版) ---
+
 function readAllRecords() {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
-  const headers = data.shift(); // Get header row
-  const headerIndexMap = headers.reduce((map, header, i) => {
-    map[header] = i;
-    return map;
-  }, {});
+  const headers = data.shift(); // 取得標頭列
 
   return data.map(row => {
     const record = {};
+    // 遍歷所有已知的欄位，確保不錯過任何一個
     for (const key in FIELD_MAP) {
-      const header = FIELD_MAP[key];
-      const index = headerIndexMap[header];
-      if (index !== undefined) {
+      const headerName = FIELD_MAP[key];
+      const index = headers.indexOf(headerName); // 根據標頭名稱找到對應的索引
+      if (index !== -1) { // 如果找到了該欄位
         record[key] = row[index];
       }
     }
@@ -115,14 +101,8 @@ function createRecord(data) {
   const sheet = getSheet();
   const newRecord = { ...data, id: "record-" + new Date().getTime() };
   
-  const newRow = [
-    newRecord.id,
-    newRecord.date,
-    newRecord.description,
-    newRecord.amount,
-    newRecord.splitAmount,
-    newRecord.paidBy
-  ];
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const newRow = headers.map(header => newRecord[REVERSE_FIELD_MAP[header]] || "");
 
   sheet.appendRow(newRow);
   return newRecord;
@@ -161,4 +141,28 @@ function deleteRecord(id) {
     }
   }
   throw new Error("找不到要刪除的紀錄");
+}
+
+function settleRecords() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sourceSheet = ss.getSheetByName(SHEET_NAME);
+  const dataRange = sourceSheet.getDataRange();
+  
+  if (dataRange.getNumRows() <= 1) {
+    throw new Error("沒有可結算的紀錄");
+  }
+
+  const data = dataRange.getValues();
+  
+  const today = new Date();
+  const formattedDate = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+  const newSheetName = `結算-${formattedDate}`;
+  
+  let destinationSheet = ss.getSheetByName(newSheetName);
+  if (!destinationSheet) {
+    destinationSheet = ss.insertSheet(newSheetName);
+  }
+  
+  destinationSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
+  sourceSheet.deleteRows(2, sourceSheet.getLastRow() - 1);
 }
