@@ -8,51 +8,46 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (record) {
+    if (visible && record) {
       form.setFieldsValue({
         ...record,
-        date: dayjs(record.date),
+        // 將 ISO 字串時間戳轉換為 dayjs 物件以供 DatePicker 使用
+        timestamp: dayjs(record.timestamp), 
+        // 確保 description 欄位被正確對應到 item 欄位
+        item: record.description,
+        totalAmount: record.amount
       });
     }
-  }, [record, form]);
-
-  const handleTotalAmountChange = (value) => {
-    if (value && !isNaN(value)) {
-      form.setFieldsValue({ splitAmount: Math.round(value / 2) });
-    } else {
-      form.setFieldsValue({ splitAmount: '' });
-    }
-  };
+  }, [visible, record, form]);
 
   const handleUpdate = () => {
     form.validateFields().then(values => {
       const updatedRecord = {
-        ...record,
-        ...values,
-        date: values.date.hour(12).toISOString(), // Set time to noon in local time
-        totalAmount: parseFloat(values.totalAmount),
+        ...record, // 確保 id 等欄位被保留
+        description: values.item,
+        amount: parseFloat(values.totalAmount),
         splitAmount: parseFloat(values.splitAmount),
+        paidBy: values.paidBy,
+        // 後端會處理 timestamp，但為了保持資料一致性，我們傳遞更新後的日期
+        timestamp: values.timestamp.toISOString(),
       };
       onUpdate(updatedRecord);
+    }).catch(info => {
+      console.log('Validate Failed:', info);
     });
   };
 
   return (
     <Modal
-      title="編輯紀錄"
       visible={visible}
+      title="編輯紀錄"
       onCancel={onCancel}
-      footer={[
-        <Button key="back" onClick={onCancel}>
-          取消
-        </Button>,
-        <Button key="submit" type="primary" onClick={handleUpdate}>
-          更新
-        </Button>,
-      ]}
+      onOk={handleUpdate}
+      okText="更新"
+      cancelText="取消"
     >
-      <Form form={form} layout="vertical" initialValues={{ paidBy: '均' }}>
-        <Form.Item label="日期" name="date" rules={[{ required: true, message: '請選擇日期!' }]}>
+      <Form form={form} layout="vertical">
+        <Form.Item label="日期" name="timestamp" rules={[{ required: true, message: '請選擇日期!' }]}>
           <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
         </Form.Item>
         <Form.Item label="項目" name="item" rules={[{ required: true, message: '請輸入項目!' }]}>
@@ -61,7 +56,6 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
         <Form.Item label="總金額" name="totalAmount" rules={[{ required: true, message: '請輸入總金額!' }]}>
           <InputNumber
             style={{ width: '100%' }}
-            onChange={handleTotalAmountChange}
             min={0}
             formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             parser={value => value.replace(/\$\s?|(,*)/g, '')}
