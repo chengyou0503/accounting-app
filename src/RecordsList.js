@@ -35,15 +35,15 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
           <br />
           <Text type="secondary">分攤: ${Math.round(record.splitAmount)}</Text>
         </Col>
-        <Col flex="80px" style={{ textAlign: 'right' }}>
-          <Button icon={<EditOutlined />} onClick={() => onEdit(record)} style={{ marginRight: 8 }} />
+        <Col flex="none" style={{ width: '90px', textAlign: 'right' }}>
+          <Button icon={<EditOutlined />} onClick={() => onEdit(record)} size="small" style={{ marginRight: 4 }} />
           <Popconfirm
             title="確定要刪除這筆紀錄嗎？"
             onConfirm={() => handleDelete(record.id)}
             okText="確定"
             cancelText="取消"
           >
-            <Button icon={<DeleteOutlined />} danger />
+            <Button icon={<DeleteOutlined />} danger size="small" />
           </Popconfirm>
         </Col>
       </Row>
