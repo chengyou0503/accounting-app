@@ -1,47 +1,41 @@
 import React from 'react';
 import { Card, Statistic, Row, Col, Button, Popconfirm } from 'antd';
-import { UserOutlined, SwapOutlined, DeleteOutlined } from '@ant-design/icons';
+import { CheckOutlined } from '@ant-design/icons';
 
-function Summary({ junTotal, youTotal, handleDeleteAll }) {
-  const balanceText = () => {
-    if (junTotal > youTotal) {
-      return `宥 要給 均 NT$ ${Math.round(junTotal - youTotal)}`;
-    }
-    if (youTotal > junTotal) {
-      return `均 要給 宥 NT$ ${Math.round(youTotal - junTotal)}`;
-    }
-    return '目前帳務平衡！';
-  };
+function Summary({ junTotal, youTotal, handleSettle }) {
+  const difference = junTotal - youTotal;
 
   return (
-    <Card title="收支總覽" style={{ marginBottom: '20px' }}>
+    <Card title="總結" style={{ marginBottom: 20 }}>
       <Row gutter={16}>
-        <Col xs={24} md={12}>
-          <Statistic title="均的總支出" value={Math.round(junTotal)} prefix={<UserOutlined />} />
+        <Col span={12}>
+          <Statistic title="均的總支出" value={Math.round(junTotal)} prefix="$" />
         </Col>
-        <Col xs={24} md={12}>
-          <Statistic title="宥的總支出" value={Math.round(youTotal)} prefix={<UserOutlined />} />
-        </Col>
-      </Row>
-      <Row style={{ marginTop: 20 }}>
-        <Col span={24}>
-           <Statistic title="差額計算" value={balanceText()} prefix={<SwapOutlined />} />
+        <Col span={12}>
+          <Statistic title="宥的總支出" value={Math.round(youTotal)} prefix="$" />
         </Col>
       </Row>
+      <div style={{ textAlign: 'center', marginTop: 20 }}>
+        {difference > 0 ? (
+          <p>宥要給均 ${Math.round(difference / 2)}</p>
+        ) : (
+          <p>均要給宥 ${Math.round(Math.abs(difference) / 2)}</p>
+        )}
+      </div>
       <Popconfirm
-        title="確定要刪除所有紀錄嗎？"
-        description="這個動作無法復原！"
-        onConfirm={handleDeleteAll}
-        okText="確定刪除"
+        title="確定要結算嗎？"
+        description="目前的紀錄將會被封存到新的工作表。"
+        onConfirm={handleSettle}
+        okText="確定"
         cancelText="取消"
       >
-        <Button
-          type="primary"
+        <Button 
+          type="primary" 
+          icon={<CheckOutlined />} 
+          style={{ width: '100%', marginTop: 16 }}
           danger
-          icon={<DeleteOutlined />}
-          style={{ width: '100%', marginTop: '20px' }}
         >
-          刪除所有紀錄
+          ✔️ 結算
         </Button>
       </Popconfirm>
     </Card>

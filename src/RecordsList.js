@@ -1,76 +1,67 @@
 import React from 'react';
-import { List, Card, Button, Spin, Alert, Popconfirm, Tag, Dropdown, Menu } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { List, Card, Button, Spin, Alert, Row, Col, Typography, Popconfirm } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+
+const { Title, Text } = Typography;
 
 function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
 
   if (isLoading) {
-    return <Spin tip="讀取中..." size="large" style={{ display: 'block', marginTop: '50px' }} />;
+    return <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>;
   }
-  
+
   if (error) {
-    return <Alert message="讀取錯誤" description={error} type="error" showIcon />;
+    return <Alert message="錯誤" description={error} type="error" showIcon />;
   }
 
-  const renderItem = (record) => {
-    const menu = (
-      <Menu>
-        <Menu.Item key="edit" onClick={() => onEdit(record)}>
-          編輯
-        </Menu.Item>
-        <Menu.Item key="delete">
-          <Popconfirm title="確定要刪除嗎？" onConfirm={() => handleDelete(record.id)}>
-            <span style={{ color: 'red' }}>刪除</span>
-          </Popconfirm>
-        </Menu.Item>
-      </Menu>
-    );
+  const junRecords = records.filter(r => r.paidBy === '均');
+  const youRecords = records.filter(r => r.paidBy === '宥');
 
-    return (
-      <List.Item>
-        <Card 
-          style={{ width: '100%' }}
-          title={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{record.item}</span>
-              <Tag color={record.paidBy === '均' ? 'blue' : 'green'}>{record.paidBy} 付款</Tag>
-            </div>
-          }
-          extra={
-            <Dropdown overlay={menu} trigger={['click']}>
-              <Button type="text" icon={<MoreOutlined />} />
-            </Dropdown>
-          }
-        >
-          <p><strong>日期:</strong> {dayjs(record.date).format('YYYY-MM-DD')}</p>
-          <p><strong>總金額:</strong> NT$ {record.totalAmount}</p>
-          <p><strong>均分金額:</strong> NT$ {record.splitAmount}</p>
-        </Card>
-      </List.Item>
-    );
-  };
+  const renderRecordCard = (record) => (
+    <Card 
+      key={record.id} 
+      style={{ marginBottom: '16px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+      bodyStyle={{ padding: '16px' }}
+    >
+      <Row align="middle" gutter={16}>
+        <Col flex="auto">
+          <Text strong style={{ fontSize: '16px' }}>{record.description}</Text>
+          <br />
+          <Text type="secondary">{dayjs(record.timestamp).format('YYYY-MM-DD')}</Text>
+        </Col>
+        <Col flex="120px" style={{ textAlign: 'right' }}>
+          <Text style={{ fontSize: '16px' }}>總額: ${Math.round(record.amount)}</Text>
+          <br />
+          <Text type="secondary">分攤: ${Math.round(record.splitAmount)}</Text>
+        </Col>
+        <Col flex="80px" style={{ textAlign: 'right' }}>
+          <Button icon={<EditOutlined />} onClick={() => onEdit(record)} style={{ marginRight: 8 }} />
+          <Popconfirm
+            title="確定要刪除這筆紀錄嗎？"
+            onConfirm={() => handleDelete(record.id)}
+            okText="確定"
+            cancelText="取消"
+          >
+            <Button icon={<DeleteOutlined />} danger />
+          </Popconfirm>
+        </Col>
+      </Row>
+    </Card>
+  );
 
   return (
-     <List
-      grid={{
-        gutter: 16,
-        xs: 1,
-        sm: 1,
-        md: 2,
-        lg: 2,
-        xl: 3,
-        xxl: 3,
-      }}
-      dataSource={records}
-      renderItem={renderItem}
-      pagination={{
-        onChange: page => {
-          console.log(page);
-        },
-        pageSize: 6,
-      }}
-    />
+    <div>
+      <Title level={4} style={{ borderBottom: '2px solid #ff7f50', paddingBottom: '8px', marginBottom: '16px' }}>
+        均的紀錄
+      </Title>
+      {junRecords.length > 0 ? junRecords.map(renderRecordCard) : <Text>沒有紀錄</Text>}
+
+      <Title level={4} style={{ borderBottom: '2px solid #1890ff', paddingBottom: '8px', marginTop: '32px', marginBottom: '16px' }}>
+        宥的紀錄
+      </Title>
+      {youRecords.length > 0 ? youRecords.map(renderRecordCard) : <Text>沒有紀錄</Text>}
+    </div>
   );
 }
 

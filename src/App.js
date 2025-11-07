@@ -77,21 +77,22 @@ function App() {
     }
   };
 
-  const handleDeleteAll = async () => {
+  const handleSettle = async () => {
     const originalRecords = [...records];
-    setRecords([]);
+    setRecords([]); //樂觀更新，立即清空畫面
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
         mode: 'cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'deleteAll' })
+        body: JSON.stringify({ action: 'settle' }) // 改為 settle action
       });
       const result = await response.json();
-      if (result.status !== 'success') throw new Error(result.message || 'Failed to delete all records.');
+      if (result.status !== 'success') throw new Error(result.message || 'Failed to settle records.');
+       alert('結算成功！紀錄已封存到新的工作表。');
     } catch (err) {
-      alert(`全部刪除失敗: ${err.message}`);
-      setRecords(originalRecords);
+      alert(`結算失敗: ${err.message}`);
+      setRecords(originalRecords); // 如果失敗，恢復記錄
     }
   };
 
@@ -152,7 +153,7 @@ function App() {
                 <Summary
                   junTotal={junTotal}
                   youTotal={youTotal}
-                  handleDeleteAll={handleDeleteAll}
+                  handleSettle={handleSettle}
                 />
                 <AddRecordForm
                   API_URL={API_URL}
