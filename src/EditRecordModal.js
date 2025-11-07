@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Modal, Form, Input, DatePicker, InputNumber, Select } from 'antd';
 import dayjs from 'dayjs';
 
@@ -6,32 +6,6 @@ const { Option } = Select;
 
 function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   const [form] = Form.useForm();
-
-  // 當 `record` 或 `visible` 狀態改變時，此 effect 會執行
-  useEffect(() => {
-    if (visible && record) {
-      form.resetFields();
-      let dateValue = null;
-      if (record.date) {
-        const parsedDate = dayjs(record.date);
-        if (parsedDate.isValid()) {
-          dateValue = parsedDate;
-        } else {
-          // 如果 record.date 存在但無效，則預設為當前日期
-          console.warn(`[EditRecordModal] 紀錄日期 '${record.date}' 無效，預設為當前日期。`, record);
-          dateValue = dayjs();
-        }
-      } else {
-        // 如果 record.date 不存在，則預設為當前日期
-        dateValue = dayjs();
-      }
-
-      form.setFieldsValue({
-        ...record,
-        date: dateValue,
-      });
-    }
-  }, [visible, record, form]);
 
   const handleUpdate = () => {
     form.validateFields().then(values => {
@@ -45,6 +19,12 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
     });
   };
 
+  // 準備給 Form 的初始值。這是最穩定的做法。
+  const initialValues = {
+    ...record,
+    date: record && record.date ? dayjs(record.date) : dayjs(),
+  };
+
   return (
     <Modal
       visible={visible}
@@ -55,9 +35,10 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
       cancelText="取消"
       destroyOnClose
     >
-      <Form form={form} layout="vertical">
+      {/* 關鍵修正：移除 useEffect，改用 initialValues 屬性 */}
+      <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item label="日期" name="date" rules={[{ required: true, message: '請選擇日期!' }]}>
-          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" allowClear={false} /> {/* <--- 關鍵修正！ */}
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" allowClear={false} />
         </Form.Item>
         <Form.Item label="項目" name="description" rules={[{ required: true, message: '請輸入項目!' }]}>
           <Input />
