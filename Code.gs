@@ -14,26 +14,6 @@ const FIELD_MAP = {
   'paidBy': '付款人'
 };
 
-// !!! --- 一次性設定功能 --- !!!
-// 請在 Apps Script 編輯器中手動「執行」此功能一次，以確保試算表欄位完全正確。
-// 警告：執行後會清空您目前的資料！
-function setupSheet() {
-  const sheet = getSheet();
-  sheet.clear(); // 清空工作表
-  const headers = [
-    FIELD_MAP.id, 
-    FIELD_MAP.date, 
-    FIELD_MAP.description, 
-    FIELD_MAP.amount, 
-    FIELD_MAP.splitAmount, 
-    FIELD_MAP.paidBy
-  ];
-  // 將 100% 正確的標題寫入第一列
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  SpreadsheetApp.flush(); // 立即套用變更
-}
-
-
 const REVERSE_FIELD_MAP = Object.entries(FIELD_MAP).reduce((acc, [key, value]) => {
   acc[value] = key;
   return acc;
