@@ -11,10 +11,24 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   useEffect(() => {
     if (visible && record) {
       form.resetFields();
+      let dateValue = null;
+      if (record.date) {
+        const parsedDate = dayjs(record.date);
+        if (parsedDate.isValid()) {
+          dateValue = parsedDate;
+        } else {
+          // 如果 record.date 存在但無效，則預設為當前日期
+          console.warn(`[EditRecordModal] 紀錄日期 '${record.date}' 無效，預設為當前日期。`, record);
+          dateValue = dayjs();
+        }
+      } else {
+        // 如果 record.date 不存在，則預設為當前日期
+        dateValue = dayjs();
+      }
+
       form.setFieldsValue({
         ...record,
-        // 如果 record.date 存在則轉換，否則預設為當前日期
-        date: record.date ? dayjs(record.date) : dayjs(), // <--- 關鍵修正！
+        date: dateValue,
       });
     }
   }, [visible, record, form]);
