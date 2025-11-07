@@ -1,81 +1,66 @@
-import React, { useState } from 'react';
-import { Card, Statistic, Row, Col, Button, Modal, Checkbox, Space } from 'antd';
-import { CheckOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Card, Statistic, Row, Col, Button, Typography, Popconfirm } from 'antd';
+import { UserOutlined, PayCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
 
-function Summary({ junTotal, youTotal, handleSettle }) {
-  const difference = junTotal - youTotal;
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [confirm1, setConfirm1] = useState(false);
-  const [confirm2, setConfirm2] = useState(false);
+const { Title, Text } = Typography;
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
+function Summary({ totalJunPaid, totalYouPaid, junShouldPay, youShouldPay, handleSettle }) {
+  const junDifference = totalJunPaid - junShouldPay;
+  const youDifference = totalYouPaid - youShouldPay;
 
-  const handleOk = () => {
-    handleSettle();
-    setIsModalVisible(false);
-    setConfirm1(false);
-    setConfirm2(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setConfirm1(false);
-    setConfirm2(false);
-  };
-
-  const isOkButtonDisabled = !confirm1 || !confirm2;
+  let summaryMessage;
+  if (Math.abs(junDifference) < 0.01) {
+    summaryMessage = <Text style={{ fontSize: 18, color: '#52c41a' }}>雙方帳務已結清！</Text>;
+  } else if (junDifference > 0) {
+    summaryMessage = (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+        <UserOutlined style={{ color: '#1890ff', marginRight: 8 }} />
+        <Text strong style={{ color: '#1890ff' }}>宥</Text>
+        <ArrowRightOutlined style={{ margin: '0 12px' }} />
+        <Text strong style={{ color: '#ff7f50' }}>均</Text>
+        <PayCircleOutlined style={{ color: 'green', marginLeft: 12, marginRight: 8 }} />
+        <Text strong style={{ color: 'green' }}>${Math.abs(junDifference).toFixed(0)}</Text>
+      </div>
+    );
+  } else {
+    summaryMessage = (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+        <UserOutlined style={{ color: '#ff7f50', marginRight: 8 }} />
+        <Text strong style={{ color: '#ff7f50' }}>均</Text>
+        <ArrowRightOutlined style={{ margin: '0 12px' }} />
+        <Text strong style={{ color: '#1890ff' }}>宥</Text>
+        <PayCircleOutlined style={{ color: 'green', marginLeft: 12, marginRight: 8 }} />
+        <Text strong style={{ color: 'green' }}>${Math.abs(youDifference).toFixed(0)}</Text>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Card title="總結" style={{ marginBottom: 20 }}>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Statistic title="均的總支出" value={Math.round(junTotal)} prefix="$" />
-          </Col>
-          <Col span={12}>
-            <Statistic title="宥的總支出" value={Math.round(youTotal)} prefix="$" />
-          </Col>
-        </Row>
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
-          {difference > 0 ? (
-            <p>宥要給均 ${Math.round(difference / 2)}</p>
-          ) : (
-            <p>均要給宥 ${Math.round(Math.abs(difference) / 2)}</p>
-          )}
-        </div>
-        <Button 
-          type="primary" 
-          icon={<CheckOutlined />} 
-          style={{ width: '100%', marginTop: 16 }}
-          danger
-          onClick={showModal}
-        >
-          結算
-        </Button>
-      </Card>
-
-      <Modal
-        title="確認結算"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okText="確定結算"
+    <Card style={{ marginBottom: '20px' }}>
+      <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>結算</Title>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        {summaryMessage}
+      </div>
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={12}>
+          <Statistic title="均的總支出" value={totalJunPaid.toFixed(0)} prefix="$" valueStyle={{ color: '#ff7f50' }} />
+        </Col>
+        <Col span={12}>
+          <Statistic title="宥的總支出" value={totalYouPaid.toFixed(0)} prefix="$" valueStyle={{ color: '#1890ff' }} />
+        </Col>
+      </Row>
+      <Popconfirm
+        title="確定要結清所有帳務嗎?"
+        content="這將會把目前所有紀錄封存到新的工作表中."
+        onConfirm={handleSettle}
+        okText="確定"
         cancelText="取消"
-        okButtonProps={{ disabled: isOkButtonDisabled }}
       >
-        <p>結算後，目前的紀錄將會被封存到新的工作表，無法復原。</p>
-        <Space direction="vertical">
-          <Checkbox checked={confirm1} onChange={(e) => setConfirm1(e.target.checked)}>
-            我已確認上方應付金額無誤。
-          </Checkbox>
-          <Checkbox checked={confirm2} onChange={(e) => setConfirm2(e.target.checked)}>
-            我了解紀錄將被封存。
-          </Checkbox>
-        </Space>
-      </Modal>
-    </>
+        <Button type="primary" danger block>
+          結清所有款項
+        </Button>
+      </Popconfirm>
+    </Card>
   );
 }
 

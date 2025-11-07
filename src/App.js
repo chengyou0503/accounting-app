@@ -140,13 +140,28 @@ function App() {
   };
 
   // --- 計算總額 ---
-  const [junTotal, youTotal] = useMemo(() => {
-    return records.reduce((acc, record) => {
-      const amount = parseFloat(record.splitAmount) || 0;
-      if (record.paidBy === '均') acc[0] += amount;
-      else if (record.paidBy === '宥') acc[1] += amount;
-      return acc;
-    }, [0, 0]);
+  const { junShouldPay, youShouldPay, totalJunPaid, totalYouPaid } = useMemo(() => {
+    let totalJunPaid = 0;
+    let totalYouPaid = 0;
+
+    records.forEach(record => {
+      const amount = parseFloat(record.amount) || 0;
+      if (record.paidBy === '均') {
+        totalJunPaid += amount;
+      } else if (record.paidBy === '宥') {
+        totalYouPaid += amount;
+      }
+    });
+
+    const totalAmount = totalJunPaid + totalYouPaid;
+    const eachShouldPay = totalAmount / 2;
+
+    return { 
+      junShouldPay: eachShouldPay, 
+      youShouldPay: eachShouldPay,
+      totalJunPaid,
+      totalYouPaid
+    };
   }, [records]);
 
   return (
@@ -160,8 +175,10 @@ function App() {
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={8}>
                 <Summary
-                  junTotal={junTotal}
-                  youTotal={youTotal}
+                  totalJunPaid={totalJunPaid}
+                  totalYouPaid={totalYouPaid}
+                  junShouldPay={junShouldPay}
+                  youShouldPay={youShouldPay}
                   handleSettle={handleSettle}
                 />
                 <AddRecordForm
