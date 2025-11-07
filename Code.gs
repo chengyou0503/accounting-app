@@ -1,5 +1,5 @@
 // ==================================================================
-// 記帳 App 後端 - v3 (移除分類，新增結算功能)
+// 記帳 App 後端 - v4 (最終修正版)
 // ==================================================================
 
 const SHEET_NAME = "records";
@@ -112,7 +112,7 @@ function readAllRecords() {
   const data = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
   
-  const headers = data.shift(); // Still need to remove the header row
+  const headers = data.shift();
   const headerMap = headers.reduce((acc, header, index) => {
     acc[header] = index;
     return acc;
@@ -137,7 +137,6 @@ function createRecord(data) {
   const sheet = getSheet();
   const newRecord = { ...data, id: "record-" + new Date().getTime() };
   
-  // 建立一個保證順序的陣列來寫入
   const newRow = [
     newRecord.id,
     newRecord.date,
