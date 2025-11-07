@@ -153,13 +153,16 @@ function createRecord(data) {
 
 function updateRecord(data) {
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const dataRange = sheet.getDataRange();
+  const values = dataRange.getValues();
   const headers = values[0];
-  const idHeader = FIELD_MAP['id'];
-  const idColumnIndex = headers.indexOf(idHeader);
-  if (idColumnIndex === -1) throw new Error(`找不到 '${idHeader}' 欄位`);
+  const idColumnIndex = headers.indexOf(FIELD_MAP.id);
+
+  if (idColumnIndex === -1) throw new Error(`找不到 '${FIELD_MAP.id}' 欄位`);
+
   const rowIndex = values.findIndex(row => row[idColumnIndex] == data.id);
   if (rowIndex === -1) throw new Error("找不到要更新的紀錄");
+
   const newRowData = headers.map(header => data[REVERSE_FIELD_MAP[header]] || '');
   sheet.getRange(rowIndex + 1, 1, 1, newRowData.length).setValues([newRowData]);
   return data;
@@ -167,11 +170,13 @@ function updateRecord(data) {
 
 function deleteRecord(id) {
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const dataRange = sheet.getDataRange();
+  const values = dataRange.getValues();
   const headers = values[0];
-  const idHeader = FIELD_MAP['id'];
-  const idColumnIndex = headers.indexOf(idHeader);
-  if (idColumnIndex === -1) throw new Error(`找不到 '${idHeader}' 欄位`);
+  const idColumnIndex = headers.indexOf(FIELD_MAP.id);
+
+  if (idColumnIndex === -1) throw new Error(`找不到 '${FIELD_MAP.id}' 欄位`);
+
   for (let i = values.length - 1; i > 0; i--) {
     if (values[i][idColumnIndex] == id) {
       sheet.deleteRow(i + 1);
