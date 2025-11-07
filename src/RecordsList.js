@@ -19,35 +19,11 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
   const youRecords = records.filter(r => r.paidBy && r.paidBy.trim() === '宥');
 
   const renderRecordCard = (record) => (
-    <Card 
-      key={record.id} 
-      style={{ marginBottom: '16px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-      bodyStyle={{ padding: '16px' }}
-    >
-      <Row align="middle" gutter={16}>
-        <Col flex="auto">
-          <Text strong style={{ fontSize: '16px' }}>{record.description}</Text>
-          <br />
-          <Text type="secondary">{dayjs(record.date).format('YYYY-MM-DD')}</Text>
-        </Col>
-        <Col flex="120px" style={{ textAlign: 'center' }}>
-          <Text style={{ fontSize: '16px' }}>總額: ${Math.round(record.amount)}</Text>
-          <br />
-          <Text type="secondary">分攤: ${Math.round(record.splitAmount)}</Text>
-        </Col>
-        <Col flex="none" style={{ width: '90px', textAlign: 'right' }}>
-          <Button icon={<EditOutlined />} onClick={() => onEdit(record)} size="small" style={{ marginRight: 4 }} />
-          <Popconfirm
-            title="確定要刪除這筆紀錄嗎？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="確定"
-            cancelText="取消"
-          >
-            <Button icon={<DeleteOutlined />} danger size="small" />
-          </Popconfirm>
-        </Col>
-      </Row>
-    </Card>
+    <div key={record.id} style={{ border: '1px solid red', padding: '10px', margin: '5px' }}>
+      <p>項目: {record.description}</p>
+      <p>付款人: {record.paidBy}</p>
+      <p>總金額: {record.amount}</p>
+    </div>
   );
 
   return (

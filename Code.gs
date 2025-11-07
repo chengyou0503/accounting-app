@@ -21,17 +21,6 @@ const REVERSE_FIELD_MAP = Object.entries(FIELD_MAP).reduce((acc, [key, value]) =
 
 function doGet(e) {
   try {
-    // !!! --- TEMPORARY DEBUGGING ACTION --- !!!
-    if (e.parameter.action === 'test') {
-      const testData = [
-        { id: 'test-1', date: '2025-11-07', description: '測試項目 A (均)', amount: 100, splitAmount: 50, paidBy: '均' },
-        { id: 'test-2', date: '2025-11-06', description: '測試項目 B (宥)', amount: 200, splitAmount: 100, paidBy: '宥' },
-        { id: 'test-3', date: '2025-11-05', description: '測試項目 C (均)', amount: 300, splitAmount: 150, paidBy: '均' }
-      ];
-      return createJsonResponse({ status: 'success', data: testData });
-    }
-    // !!! --- END OF DEBUGGING ACTION --- !!!
-
     if (e.parameter.action === 'read') {
       return createJsonResponse({ status: 'success', data: readAllRecords() });
     }

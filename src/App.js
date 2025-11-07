@@ -31,34 +31,25 @@ function App() {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   // --- Data Fetching ---
+  const [recordsListKey, setRecordsListKey] = useState(0); // Key for forcing RecordsList re-render
+
   const fetchRecords = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    console.log("1. [fetchRecords] 開始獲取資料 (正在使用測試模式)...");
     try {
-      // 暫時使用 action=test 來獲取寫死的測試資料
-      const response = await fetch(`${API_URL}?action=test`);
-      console.log("2. [fetchRecords] 收到來自 API 的回應:", response);
-
-      if (!response.ok) {
-        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
-      }
-
+      // 改回從 Google Sheet 讀取資料
+      const response = await fetch(`${API_URL}?action=read`);
+      if (!response.ok) throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       const result = await response.json();
-      console.log("3. [fetchRecords] 解析後的 JSON 結果:", result);
-
       if (result.status === 'success' && Array.isArray(result.data)) {
-        console.log("4. [fetchRecords] API 請求成功，準備設定 records 狀態:", result.data);
         setRecords(result.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setRecordsListKey(prevKey => prevKey + 1); // Update key to force re-render
       } else {
-        console.error("API 回傳的資料格式不正確，result.data 不是一個陣列:", result.data);
         throw new Error(result.message || 'API 回傳的資料格式不正確。');
       }
     } catch (err) {
-      console.error("5. [fetchRecords] 在 try-catch 區塊捕獲到錯誤:", err);
       setError(err.message);
     } finally {
-      console.log("6. [fetchRecords] 執行結束。");
       setIsLoading(false);
     }
   }, []);
@@ -71,6 +62,7 @@ function App() {
   const handleFormSuccess = (newRecord) => {
     // Add the new record to the top of the list, avoiding a re-fetch
     setRecords(prevRecords => [newRecord, ...prevRecords].sort((a, b) => new Date(b.date) - new Date(a.date)));
+    setRecordsListKey(prevKey => prevKey + 1); // Update key to force re-render
   };
 
   const handleDelete = async (id) => {
@@ -204,6 +196,7 @@ function App() {
               </Col>
               <Col xs={24} lg={16}>
                 <RecordsList
+                  key={recordsListKey}
                   records={records}
                   isLoading={isLoading}
                   error={error}
