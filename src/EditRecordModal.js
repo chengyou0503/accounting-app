@@ -10,19 +10,17 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   // 當 `record` 或 `visible` 狀態改變時，此 effect 會執行
   useEffect(() => {
     if (visible && record) {
-      // 關鍵修正：先強制重置表單，清除舊狀態
       form.resetFields();
-      // 然後再設定新的值，並確保日期被正確轉換
       form.setFieldsValue({
         ...record,
-        date: record.date ? dayjs(record.date) : null,
+        // 如果 record.date 存在則轉換，否則預設為當前日期
+        date: record.date ? dayjs(record.date) : dayjs(), // <--- 關鍵修正！
       });
     }
   }, [visible, record, form]);
 
   const handleUpdate = () => {
     form.validateFields().then(values => {
-      // 將表單中的 dayjs 物件格式化回 'YYYY-MM-DD' 字串
       const formValues = {
         ...values,
         date: values.date.format('YYYY-MM-DD'),
@@ -43,10 +41,9 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
       cancelText="取消"
       destroyOnClose
     >
-      {/* 表單欄位名稱現在與 record 物件的 key 一致 */}
       <Form form={form} layout="vertical">
         <Form.Item label="日期" name="date" rules={[{ required: true, message: '請選擇日期!' }]}>
-          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" allowClear={false} /> {/* <--- 關鍵修正！ */}
         </Form.Item>
         <Form.Item label="項目" name="description" rules={[{ required: true, message: '請輸入項目!' }]}>
           <Input />
