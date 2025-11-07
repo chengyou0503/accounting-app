@@ -28,7 +28,7 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
         <Col flex="auto">
           <Text strong style={{ fontSize: '16px' }}>{record.description}</Text>
           <br />
-          <Text type="secondary">{dayjs(record.timestamp).format('YYYY-MM-DD')}</Text>
+          <Text type="secondary">{dayjs(record.date).format('YYYY-MM-DD')}</Text>
         </Col>
         <Col flex="120px" style={{ textAlign: 'right' }}>
           <Text style={{ fontSize: '16px' }}>總額: ${Math.round(record.amount)}</Text>

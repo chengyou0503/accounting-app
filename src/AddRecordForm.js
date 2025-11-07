@@ -18,6 +18,7 @@ function AddRecordForm({ API_URL, onSuccess }) {
   const handleSubmit = async (values) => {
     // 將前端表單欄位對應到後端試算表欄位
     const newRecord = {
+      date: values.date.format('YYYY-MM-DD'),
       description: values.item,
       amount: parseFloat(values.totalAmount),
       splitAmount: parseFloat(values.splitAmount),

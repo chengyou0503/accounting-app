@@ -8,6 +8,7 @@ const SHEET_NAME = "records";
 const FIELD_MAP = {
   'id': 'ID',
   'timestamp': '時間戳',
+  'date': '日期',
   'description': '項目',
   'amount': '總金額',
   'splitAmount': '分攤金額',
@@ -151,4 +152,49 @@ function deleteRecord(id) {
     }
   }
   throw new Error("找不到要刪除的紀錄");
+}
+
+function importOldRecords() {
+  const recordsToImport = [
+    { date: "2025-10-26", description: "保險退費", amount: 9206, splitAmount: 9206, paidBy: "均" },
+    { date: "2025-10-25", description: "愛當勞", amount: 176, splitAmount: 176, paidBy: "均" },
+    { date: "2025-10-24", description: "宵夜-湯圓", amount: 704, splitAmount: 352, paidBy: "均" },
+    { date: "2025-10-24", description: "午餐-八方雲集", amount: 178, splitAmount: 178, paidBy: "宥" },
+    { date: "2025-10-23", description: "鹿港", amount: 427, splitAmount: 214, paidBy: "宥" },
+    { date: "2025-11-03", description: "晚餐", amount: 327, splitAmount: 164, paidBy: "均" },
+    { date: "2025-10-27", description: "烏鴉強", amount: 380, splitAmount: 190, paidBy: "宥" },
+    { date: "2025-10-28", description: "烏母鴨", amount: 840, splitAmount: 420, paidBy: "宥" },
+    { date: "2025-10-24", description: "打羽球1hr", amount: 370, splitAmount: 185, paidBy: "宥" },
+    { date: "2025-10-18", description: "Moft手機支架", amount: 799, splitAmount: 799, paidBy: "均" },
+    { date: "2025-10-22", description: "老爺師父包", amount: 150, splitAmount: 150, paidBy: "宥" },
+    { date: "2025-11-06", description: "蘋果麵包", amount: 70, splitAmount: 35, paidBy: "宥" },
+    { date: "2025-11-06", description: "鍋燒", amount: 200, splitAmount: 100, paidBy: "宥" },
+    { date: "2025-11-04", description: "機車保險代墊", amount: 2100, splitAmount: 2100, paidBy: "宥" },
+    { date: "2025-11-03", description: "興炸", amount: 120, splitAmount: 60, paidBy: "宥" },
+    { date: "2025-11-02", description: "好市多", amount: 695, splitAmount: 695, paidBy: "宥" },
+    { date: "2025-10-27", description: "好市多", amount: 720, splitAmount: 720, paidBy: "宥" },
+    { date: "2025-11-01", description: "公益路高級火鍋", amount: 1200, splitAmount: 600, paidBy: "宥" },
+    { date: "2025-10-31", description: "晚餐誠品480-丸龜", amount: 288, splitAmount: 144, paidBy: "均" },
+    { date: "2025-11-04", description: "晚餐愛當勞", amount: 445, splitAmount: 223, paidBy: "均" },
+    { date: "2025-11-06", description: "iris紅包", amount: 650, splitAmount: 650, paidBy: "均" },
+    { date: "2025-11-06", description: "郵局代收", amount: 1749, splitAmount: 1749, paidBy: "宥" },
+    { date: "2025-11-06", description: "晚餐豪奢品", amount: 480, splitAmount: 240, paidBy: "宥" }
+  ];
+
+  recordsToImport.forEach(recordData => {
+    // 調整日期格式以符合 createRecord 預期
+    const timestamp = new Date(recordData.date).toISOString();
+    
+    const newRecord = {
+      description: recordData.description,
+      amount: recordData.amount,
+      splitAmount: recordData.splitAmount,
+      paidBy: recordData.paidBy,
+      // id 和 timestamp 會在 createRecord 內部生成
+    };
+    
+    createRecord(newRecord); // 呼叫現有的 createRecord 函數
+  });
+
+  Logger.log("所有舊紀錄已成功匯入！");
 }
