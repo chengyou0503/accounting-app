@@ -16,11 +16,14 @@ function AddRecordForm({ API_URL, onSuccess }) {
   };
 
   const handleSubmit = async (values) => {
+    // 將前端表單欄位對應到後端試算表欄位
     const newRecord = {
-      ...values,
-      date: values.date.hour(12).toISOString(), // Set time to noon in local time before sending
-      totalAmount: parseFloat(values.totalAmount),
+      description: values.item,
+      category: values.item, // 暫時讓分類與項目相同
+      amount: parseFloat(values.totalAmount),
       splitAmount: parseFloat(values.splitAmount),
+      paidBy: values.paidBy,
+      // 注意：日期和時間戳記由後端 Apps Script 自動生成，前端不需發送
     };
 
     try {
