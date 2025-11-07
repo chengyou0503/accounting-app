@@ -7,30 +7,44 @@ const { Option } = Select;
 function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   const [form] = Form.useForm();
 
+  // This effect runs when the modal becomes visible or the record data changes.
+  // It's responsible for populating the form with the correct data format.
   useEffect(() => {
     if (visible && record) {
       form.setFieldsValue({
-        ...record,
-        // 將 ISO 字串時間戳轉換為 dayjs 物件以供 DatePicker 使用
-        timestamp: dayjs(record.timestamp), 
-        // 確保 description 欄位被正確對應到 item 欄位
+        // The form field for the date is named 'timestamp'
+        timestamp: dayjs(record.timestamp),
+        // The form field for description is named 'item'
         item: record.description,
-        totalAmount: record.amount
+        // The form field for amount is named 'totalAmount'
+        // We must parse it to a number in case it's a string from the API
+        totalAmount: parseFloat(record.amount) || 0,
+        // The form field for the paidBy is named 'paidBy'
+        paidBy: record.paidBy,
+        // The form field for split amount is named 'splitAmount'
+        splitAmount: parseFloat(record.splitAmount) || 0,
       });
     }
   }, [visible, record, form]);
 
   const handleUpdate = () => {
     form.validateFields().then(values => {
+      // Construct the object to be sent to the backend API
       const updatedRecord = {
-        ...record, // 確保 id 等欄位被保留
+        // CRITICAL: Pass the original record's ID back
+        id: record.id,
+        // The backend expects a 'description' field
         description: values.item,
+        // The backend expects an 'amount' field
         amount: parseFloat(values.totalAmount),
+        // The backend expects a 'splitAmount' field
         splitAmount: parseFloat(values.splitAmount),
+        // The backend expects a 'paidBy' field
         paidBy: values.paidBy,
-        // 後端會處理 timestamp，但為了保持資料一致性，我們傳遞更新後的日期
+        // The backend expects a 'timestamp' field as an ISO string
         timestamp: values.timestamp.toISOString(),
       };
+      // Call the update function passed from App.js
       onUpdate(updatedRecord);
     }).catch(info => {
       console.log('Validate Failed:', info);
@@ -45,8 +59,10 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
       onOk={handleUpdate}
       okText="更新"
       cancelText="取消"
+      destroyOnClose // This will destroy the form state when modal is closed
     >
       <Form form={form} layout="vertical">
+        {/* The name here MUST match the key in setFieldsValue and the key read in handleUpdate */}
         <Form.Item label="日期" name="timestamp" rules={[{ required: true, message: '請選擇日期!' }]}>
           <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
         </Form.Item>
