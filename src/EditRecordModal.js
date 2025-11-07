@@ -7,12 +7,6 @@ const { Option } = Select;
 function EditRecordModal({ visible, onCancel, onUpdate, record }) {
   const [form] = Form.useForm();
 
-  // 偵錯用：當 modal 可見且有 record 時，印出 record 內容
-  if (visible && record) {
-    console.log("[EditRecordModal] 接收到的 record:", record);
-    console.log("[EditRecordModal] record.date 的值:", record.date);
-  }
-
   const handleUpdate = () => {
     form.validateFields().then(values => {
       const formValues = {
@@ -25,9 +19,10 @@ function EditRecordModal({ visible, onCancel, onUpdate, record }) {
     });
   };
 
+  // 準備給 Form 的初始值。這是最穩定的做法。
   const initialValues = {
     ...record,
-    date: record && record.date ? dayjs(record.date) : dayjs(),
+    date: (record && record.date && dayjs(record.date).isValid()) ? dayjs(record.date) : dayjs(),
   };
 
   return (
