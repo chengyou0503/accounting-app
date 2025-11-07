@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Card, Button, Spin, Alert, Row, Col, Typography, Popconfirm } from 'antd';
+import { Card, Button, Spin, Alert, Row, Col, Typography, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
