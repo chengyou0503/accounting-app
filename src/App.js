@@ -55,8 +55,9 @@ function App() {
   }, [fetchRecords]);
 
   // --- Event Handlers ---
-  const handleFormSuccess = () => {
-    fetchRecords();
+  const handleFormSuccess = (newRecord) => {
+    // Add the new record to the top of the list, avoiding a re-fetch
+    setRecords(prevRecords => [newRecord, ...prevRecords].sort((a, b) => new Date(b.date) - new Date(a.date)));
   };
 
   const handleDelete = async (id) => {

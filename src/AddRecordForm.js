@@ -35,7 +35,7 @@ function AddRecordForm({ API_URL, onSuccess }) {
       const result = await response.json();
       if (result.status !== 'success') throw new Error(result.message || 'Failed to create record.');
       form.resetFields();
-      onSuccess(); // Notify parent to refetch
+      onSuccess(result.data); // Notify parent to refetch
     } catch (err) {
       alert(`新增失敗: ${err.message}`);
     }
