@@ -23,7 +23,9 @@ function RecordsList({ records, isLoading, error, handleDelete, onEdit }) {
   console.log("RecordsList: 過濾後的 junRecords:", junRecords);
   console.log("RecordsList: 過濾後的 youRecords:", youRecords);
 
-  const renderRecordCard = (record) => (
+  const renderRecordCard = (record) => {
+    console.log("RecordsList: 正在渲染卡片:", record);
+    return (
     <Card 
       key={record.id} 
       style={{ marginBottom: '16px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
